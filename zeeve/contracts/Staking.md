@@ -83,6 +83,7 @@ In case of registering the node the contract calls ignite contract to push the s
 
 ## Flow Diagram :
 
+<iframe style="border: 1px solid rgba(207, 198, 198, 0.1);" width="800" height="450" src="https://embed.figma.com/board/EjfG2ZVDpPz9JcfNXuzU3L/Swap-1?node-id=492-1509&embed-host=share" allowfullscreen></iframe>
 
 ## Conclusion 
 We have a very good understanding of this contract
