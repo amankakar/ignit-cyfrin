@@ -212,19 +212,19 @@ contract Ignite is
         );
 
         // Verify that the sender can receive AVAX
-        (bool success, ) = msg.sender.call("");
+        (bool success, ) = msg.sender.call(""); 
         require(success);
 
         (, int256 avaxPrice, , uint avaxPriceUpdatedAt, ) = priceFeeds[AVAX].latestRoundData();
         (, int256 qiPrice, , uint qiPriceUpdatedAt, ) = priceFeeds[address(qi)].latestRoundData();
 
-        require(qiPrice > 0 && avaxPrice > qiPrice);
+        require(qiPrice > 0 && avaxPrice > qiPrice); // @audit q what if the qi price surpass avax price ?
         require(block.timestamp - avaxPriceUpdatedAt <= maxPriceAges[AVAX]);
         require(block.timestamp - qiPriceUpdatedAt <= maxPriceAges[address(qi)]);
 
         // QI deposit amount is 10 % (thus, note the divider) of the AVAX value
         // that BENQI subsidises for the validator.
-        uint qiAmount = uint(avaxPrice) * (2000e18 - msg.value) / uint(qiPrice) / 10;
+        uint qiAmount = uint(avaxPrice) * (2000e18 - msg.value) / uint(qiPrice) / 10; // @audit need to understand this
 
         require(qiAmount > 0);
 
@@ -381,7 +381,7 @@ contract Ignite is
         require(block.timestamp - avaxPriceUpdatedAt <= maxPriceAges[AVAX]);
         require(block.timestamp - qiPriceUpdatedAt <= maxPriceAges[address(qi)]);
 
-        // 200 AVAX + 1 AVAX fee
+        // 200 AVAX + 1 AVAX fee = 201e18
         uint expectedQiAmount = uint(avaxPrice) * 201e18 / uint(qiPrice);
 
         require(qiAmount >= expectedQiAmount * 9 / 10);
@@ -405,7 +405,7 @@ contract Ignite is
      *         wants to redeem their deposited tokens and potential rewards.
      * @param  nodeId Node ID of the validator
      */
-    function redeemAfterExpiry(string calldata nodeId) external nonReentrant whenNotPaused { // @audit : no need for pause check here
+    function redeemAfterExpiry(string calldata nodeId) external nonReentrant whenNotPaused {
         uint registrationIndex = registrationIndicesByNodeId[nodeId];
         require(registrationIndex != 0);
 
@@ -417,7 +417,7 @@ contract Ignite is
         // If feePaid is true and the registration is withdrawable, it must have been released
         // with the failed flag set, meaning that the validator could not be started and the
         // fee should be refunded.
-        if (registration.feePaid) {
+        if (registration.feePaid) { // @info withdraw fees 
             if (registration.tokenDeposits.avaxAmount > 0) {
                 uint avaxDepositAmount = registration.tokenDeposits.avaxAmount;
 
@@ -543,7 +543,7 @@ contract Ignite is
      * @param  validationDuration Validation duration in seconds
      * @return Registration fee in AVAX
      */
-    function getRegistrationFee(uint validationDuration) external view returns (uint) {
+    function getRegistrationFee(uint validationDuration) external pure returns (uint) {
         return _getRegistrationFee(validationDuration);
     }
 
@@ -1061,7 +1061,7 @@ contract Ignite is
      * @param  validationDuration Validation duration in seconds
      * @return Registration fee in AVAX
      */
-    function _getRegistrationFee(uint validationDuration) internal view returns (uint) {
+    function _getRegistrationFee(uint validationDuration) internal pure returns (uint) {
         if (validationDuration == VALIDATION_DURATION_TWO_WEEKS) {
             return 8e18;
         }
