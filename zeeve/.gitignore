@@ -112,5 +112,4 @@ contracts/coverage.json
 .idea/
 
 .openzeppelin/
-
 yarn.lock

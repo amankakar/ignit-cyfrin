@@ -19,7 +19,7 @@ describe("StakingContract", function () {
     before(async function () {
         // Get signers
         [deployer, benqiSuperAdmin, benqiAdmin, zeeveSuperAdmin, zeeveAdmin, otherUser] = await ethers.getSigners();
-
+        console.log("benqiSuperAdmin" , benqiAdmin);
         qiToken = await ethers.getContractAt("IERC20", qiTokenAddress);
         contractAddresses = {
             qiToken: qiTokenAddress,

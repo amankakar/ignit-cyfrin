@@ -405,7 +405,7 @@ contract Ignite is
      *         wants to redeem their deposited tokens and potential rewards.
      * @param  nodeId Node ID of the validator
      */
-    function redeemAfterExpiry(string calldata nodeId) external nonReentrant whenNotPaused {
+    function redeemAfterExpiry(string calldata nodeId) external nonReentrant whenNotPaused { // @audit : no need for pause check here
         uint registrationIndex = registrationIndicesByNodeId[nodeId];
         require(registrationIndex != 0);
 

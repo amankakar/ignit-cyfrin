@@ -334,7 +334,7 @@ contract StakingContract is
     function setMinSlippage(
         uint256 _minSlippage
     ) external onlyRole(BENQI_ADMIN_ROLE) {
-        require(slippage >= _minSlippage, "Error: minimum slippage must be lower than the current slippage");
+        require(slippage >= _minSlippage, "Error: minimum slippage must be lower than the current slippage"); // @audit : remove the = 
         uint256 oldMinSlippage = minSlippage;
         minSlippage = _minSlippage;
         emit MinSlippageUpdated(oldMinSlippage, _minSlippage);
@@ -549,7 +549,7 @@ contract StakingContract is
             );
         }
 
-        // Transfer the hosting fee in the original token to the Zeeve wallet
+        // Transfer the hosting fee in the original token to the Zeeve wallet @note : where the transfer is done ??
         uint256 hostingFeeInToken = convertAvaxToToken(token, hostingFee);
         UserStakeRecords storage userRecords = stakeRecords[msg.sender];
         uint256 index = userRecords.stakeCount;
@@ -617,7 +617,7 @@ contract StakingContract is
     ) external onlyRole(BENQI_ADMIN_ROLE) {
         require(acceptedTokens.contains(token), "Token not accepted"); // Check if the token is accepted
         address oldPriceFeed = address(priceFeeds[token]);
-        _validateAndSetPriceFeed(token, newPriceFeed, maxPriceAges[token]);
+        _validateAndSetPriceFeed(token, newPriceFeed, maxPriceAges[token]); // @audit : why using old maxPiceAge here ??
         emit PriceFeedUpdated(token, oldPriceFeed, newPriceFeed);
     }
 
@@ -715,6 +715,7 @@ contract StakingContract is
         address tokenType = record.tokenType;
 
         // Refund the staked amount
+        // @audit : why stackedAmount being payed in QIToken?
         qiToken.safeTransfer(user, stakedAmount);
         // Refund the hosting fee
         if (tokenType == AVAX) {
@@ -834,7 +835,7 @@ contract StakingContract is
         require(isValidDuration(duration), "Invalid duration");
 
         uint256 numFortnights = duration / FORTNIGHT_IN_SECONDS; // 14 days
-        return numFortnights * hostingFeeAvax;
+        return numFortnights * hostingFeeAvax; // per night
     }
 
     /**
@@ -874,7 +875,7 @@ contract StakingContract is
         } else {
             path = new address[](3);
             path[0] = token;
-            path[1] = intermediaryToken;
+            path[1] = intermediaryToken; // @audit : why using only one intermediaryToken for all and what if there is no need for  intermediaryToken ?
             path[2] = address(qiToken);
         }
 
@@ -883,7 +884,7 @@ contract StakingContract is
         uint256 amountOutMin = (expectedQiAmount * slippageFactor) / 100; // Apply slippage
 
         uint256[] memory amountOutReal;
-        uint256 deadline = block.timestamp;
+        uint256 deadline = block.timestamp; // @note : not best choice 
 
         if (token == AVAX) {
             // Perform the swap for AVAX
