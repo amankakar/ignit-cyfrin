@@ -83,7 +83,7 @@ In case of registering the node the contract calls ignite contract to push the s
 
 ## Flow Diagram :
 ![flow](../../flow.png)
-![alt text](https://github.com//[reponame]/blob/[branch]/image.jpg?raw=true)
+![alt text](https://github.com/amankakar/ignit-cyfrin/blob/master/zeeve/contracts/flow.png)
 
 
 ## Conclusion 
