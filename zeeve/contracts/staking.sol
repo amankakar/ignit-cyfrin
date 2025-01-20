@@ -882,7 +882,9 @@ contract StakingContract is
         // Get the best price quote
         uint256 slippageFactor = 100 - slippage; // Convert slippage percentage to factor
         uint256 amountOutMin = (expectedQiAmount * slippageFactor) / 100; // Apply slippage
-
+// pool state : 10 token2 swap outMin => 10 token1 
+// asad place : 10 token2 slip minOut 8 token1 
+// aman : pool unbalane aisy k minout asad swap execute 8 token1
         uint256[] memory amountOutReal;
         uint256 deadline = block.timestamp; // @note : not best choice 
 
