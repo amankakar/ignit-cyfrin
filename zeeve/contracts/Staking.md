@@ -83,7 +83,8 @@ In case of registering the node the contract calls ignite contract to push the s
 
 ## Flow Diagram :
 ![flow](../../flow.png)
-![text](./flow.png)
+![alt text](https://github.com//[reponame]/blob/[branch]/image.jpg?raw=true)
+
 
 ## Conclusion 
 We have a very good understanding of this contract
