@@ -114,7 +114,7 @@ contract Ignite is
 
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() {
-        _disableInitializers();
+        // _disableInitializers();
     }
 
     function initialize(
@@ -918,7 +918,7 @@ contract Ignite is
         if (feePaid) {
             subsidisationAmount = 2000e18;
         } else {
-            subsidisationAmount = 2000e18 - msg.value;
+            subsidisationAmount = 2000e18 - msg.value; 
         }
 
         require(

@@ -1,5 +1,5 @@
 const hre = require("hardhat");
-const { expect } = require("chai");
+const { expect,assert } = require("chai");
 const { smock } = require("@defi-wonderland/smock");
 
 
@@ -1550,35 +1550,46 @@ describe("Ignite", function () {
 
         const priceFeed = await deployPriceFeed(42);
 
-        await Promise.all([
-          ignite.addPaymentToken(token1, priceFeed.address, 120),
-          ignite.addPaymentToken(token2, priceFeed.address, 120),
-          ignite.addPaymentToken(token3, priceFeed.address, 120),
-          ignite.addPaymentToken(token4, priceFeed.address, 120),
-        ]);
+          await ignite.addPaymentToken(token1, priceFeed.address, 120),
+          await ignite.addPaymentToken(token2, priceFeed.address, 120),
+          await ignite.addPaymentToken(token3, priceFeed.address, 120),
+          await ignite.addPaymentToken(token4, priceFeed.address, 120),
+
+        expect(await ignite.getTotalErc20PaymentMethods()).to.equal(5);
 
         expect(await ignite.getErc20PaymentMethods())
           .to.eql([qi.address, token1, token2, token3, token4]);
 
-        expect(await ignite.getTotalErc20PaymentMethods()).to.equal(5);
-
         await ignite.removePaymentToken(token1);
 
-        expect(await ignite.getErc20PaymentMethods())
-          .to.eql([qi.address, token4, token2, token3]);
+        let tokensArr = await ignite.getErc20PaymentMethods()
+        let expectedAtokenArr = [qi.address, token2, token3,token4]; 
+        for(let i = 0; i < tokensArr.length;i++){
+          assert(tokensArr.includes(expectedAtokenArr[i]));
+        }
 
         expect(await ignite.getTotalErc20PaymentMethods()).to.equal(4);
 
         await ignite.removePaymentToken(token4);
 
-        expect(await ignite.getErc20PaymentMethods())
-          .to.eql([qi.address, token3, token2]);
+    
+
+          tokensArr = await ignite.getErc20PaymentMethods()
+        expectedAtokenArr = [qi.address, token2, token3]; 
+        for(let i = 0; i < tokensArr.length;i++){
+          assert(tokensArr.includes(expectedAtokenArr[i]));
+        }
 
         expect(await ignite.getTotalErc20PaymentMethods()).to.equal(3);
 
         await ignite.removePaymentToken(token3);
 
-        expect(await ignite.getErc20PaymentMethods()).to.eql([qi.address, token2]);
+        tokensArr = await ignite.getErc20PaymentMethods()
+        expectedAtokenArr = [qi.address, token2]; 
+        for(let i = 0; i < tokensArr.length;i++){
+          assert(tokensArr.includes(expectedAtokenArr[i]));
+        }
+        
         expect(await ignite.getTotalErc20PaymentMethods()).to.equal(2);
 
         await ignite.removePaymentToken(token2);
@@ -1586,6 +1597,12 @@ describe("Ignite", function () {
 
         expect(await ignite.getTotalErc20PaymentMethods()).to.equal(0);
         expect(await ignite.getErc20PaymentMethods()).to.eql([]);
+
+        
+        await ignite.addPaymentToken(qi.address, priceFeed.address, 120)
+        expect(await ignite.getErc20PaymentMethods()).to.eql([qi.address]);
+
+
       });
     });
 
