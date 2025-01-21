@@ -215,6 +215,7 @@ contract Ignite is
         (bool success, ) = msg.sender.call(""); 
         require(success);
 
+        emit LogAsad(); 
         (, int256 avaxPrice, , uint avaxPriceUpdatedAt, ) = priceFeeds[AVAX].latestRoundData();
         (, int256 qiPrice, , uint qiPriceUpdatedAt, ) = priceFeeds[address(qi)].latestRoundData();
 
@@ -948,6 +949,7 @@ contract Ignite is
         );
     }
 
+    event LogAsad();
     /**
      * @notice Store the registration
      * @param  beneficiary The beneficiary of the registration
@@ -976,7 +978,6 @@ contract Ignite is
         );
 
         require(blsProofOfPossession.length == 144);
-
         registrationIndicesByNodeId[nodeId] = registrations.length;
         registrations.push(
             Registration(
