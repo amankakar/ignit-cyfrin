@@ -1,13 +1,17 @@
 [profile.default]
 src = "src"
-out = "artifacts"
-libs = ["node_modules"]
+out = "out"
+optimizer = true
+optimizer_runs = 200
+libs = ["node_modules", "lib"]
 remappings = [
     "@chainlink/=node_modules/@chainlink/",
     "@eth-optimism/=node_modules/@eth-optimism/",
     "@looksrare/=node_modules/@looksrare/",
     "@openzeppelin/=node_modules/@openzeppelin/",
     "hardhat/=node_modules/hardhat/",
+    "@crytic/properties/=lib/properties",
+    "@chimera/=lib/chimera/src",
 ]
 
 # See more config options https://github.com/foundry-rs/foundry/blob/master/crates/config/README.md#all-options

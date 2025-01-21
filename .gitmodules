@@ -1,3 +1,9 @@
 [submodule "zeeve/lib/forge-std"]
 	path = zeeve/lib/forge-std
 	url = https://github.com/foundry-rs/forge-std
+[submodule "zeeve/lib/chimera"]
+	path = zeeve/lib/chimera
+	url = https://github.com/Recon-Fuzz/chimera
+[submodule "zeeve/lib/properties"]
+	path = zeeve/lib/properties
+	url = https://github.com/crytic/properties
