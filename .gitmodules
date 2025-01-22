@@ -7,3 +7,6 @@
 [submodule "zeeve/lib/properties"]
 	path = zeeve/lib/properties
 	url = https://github.com/crytic/properties
+[submodule "lib/chimera"]
+	path = lib/chimera
+	url = https://github.com/Recon-Fuzz/chimera

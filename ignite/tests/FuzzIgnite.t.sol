@@ -23,17 +23,16 @@ contract FuzzIgnite {
     PriceFeed qiPriceFeed;
     PriceFeed avaxPriceFeed;
     // ghost variable
-    uint256 totalStaked;
-    mapping(address => uint256) public staked;
-    // mapping(address => uint256) public claimed;
+  uint256 totalEthStaked;
+    uint256 totalQIStaked;
     constructor() {
         users.push(address(0x1));
         users.push(address(0x2));
         users.push(address(0x3));
         hevm.prank(admin);
-         qiPriceFeed = new PriceFeed(120);
+         qiPriceFeed = new PriceFeed(1_000_000);
         hevm.prank(admin);
-         avaxPriceFeed = new PriceFeed(121);
+         avaxPriceFeed = new PriceFeed(2_000_000_000);
         hevm.prank(admin);
         sAvax = new StakedAvax();
         hevm.prank(admin);
@@ -58,120 +57,35 @@ contract FuzzIgnite {
         hevm.prank(users[i]);
         qi.approve(address(ignite), type(uint256).max);
     }
-        // hevm.prank(admin);
-        // ignite.configurePriceFeed(0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE,address(avaxPriceFeed),120);
-        // register_With_Stake(0,25 ether);
+        hevm.prank(admin);
+        ignite.configurePriceFeed(0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE,address(avaxPriceFeed),120);
+        // register_With_Stake();
 
     }
 
-    function register_With_Stake(uint256 userIndex,uint256 ethAmount) public {
+function clampLte(uint256 a, uint256 b) internal pure returns (uint256) {
+        if (!(a <= b)) {
+            uint256 value = a % (b + 1);
+            return uint256(value);
+        }
+        return uint256(a);
+    }
+    function register_With_Stake(uint256 amount) public {
+        amount = clampLte(25 ether,1500 ether);
+        address user = users[0];
         
-        hevm.assume(userIndex < users.length);
-        address user = users[userIndex];
-        // hevm.assume(amount <= qi.balanceOf(user));
-        hevm.assume(
-            ethAmount <= address(user).balance &&
-           ethAmount >= 25 ether &&
-            ethAmount <= 1500 ether &&
-            ethAmount % 1e9 == 0
-            );
-
-        // Set AVAX price to $20 and QI price to $0.01
-        // avaxPriceFeed.setPrice(2_000_000_000);
-        // qiPriceFeed.setPrice(1_000_000);
-        // assert(address(ignite.priceFeeds(0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE)) == address(0));
-        staked[user] += ethAmount;
-        totalStaked += ethAmount;
         hevm.prank(user);
-        ignite.registerWithStake{value:ethAmount}("NodeID-1", blsPoP, 86400 * 14);
-        // hevm.warp(block.timestamp + 30 days);
-
-
+         ignite.registerWithStake{value:amount}("NodeID-1", blsPoP, 86400 * 14);
+        totalEthStaked +=amount;
+        uint qiAmount = uint(2_000_000_000) * (2000e18 - amount) / uint(1_000_000) / 10;
+        totalQIStaked +=qiAmount;
     }
 
-    // function claim_vested_token(uint256 userIndex, uint16 _days) public {
-    //     hevm.assume(userIndex < users.length);
-    //     address user = users[userIndex];
-    //     // increase time
-    //     hevm.warp(block.timestamp + _days);
 
-    //     (uint256 claimableAmount, ) = SecondSwap_StepVesting(vesting).claimable(
-    //         user
-    //     );
-
-    //     hevm.prank(user);
-    //     SecondSwap_StepVesting(vesting).claim();
-
-    //     claimed[user] += claimableAmount;
-    // }
-  
-
-    // function reallocate_vested_token(uint8 userIndex,uint8 userIndex2,uint256 amount) public {
-    //     hevm.assume(userIndex < users.length);
-    //     address user = users[userIndex];
-
-    //     uint256 total =  vested[user] - claimed[user]; 
-    //     hevm.assume(amount < total);
-
-    //     hevm.assume(userIndex2 < users.length);
-    //     address user2 = users[userIndex2];
-        
-    //     hevm.prank(admin);
-    //     vestingDeployer.transferVesting(user,user2,amount,vesting,"myVestingId");
-        
-    //     vested[user2] += amount;
-    //     vested[user] -= amount;
-    // }
-
-    // function echidna_vesting_balance() public view returns(bool){
-
-    //     uint256 amount;
-    //     for (uint256 i = 0; i < users.length; i++) {
-    //         address user = users[i];
-    //         if (vested[user] > 0) {
-    //             amount += (vested[user] - claimed[user]);
-    //         }
-    //     }
-    //     assert(token.balanceOf(vesting) == amount);
-    //     return true;
-    // }
-    // function echidna_vesting_total() public view returns(bool){
-    //     for (uint256 i = 0; i < users.length; i++) {
-    //         address user = users[i];
-    //         if (vested[user] > 0) {
-    //             uint256 total = SecondSwap_StepVesting(vesting).total(user);
-    //             assert(total == vested[user]);
-    //         }
-    //     }
-
-    //             return true;
-
-    // }
-
-    // function echidna_claimed_balance() public view returns(bool){
-    //     for (uint256 i = 0; i < users.length; i++) {
-    //         address user = users[i];
-    //         if (claimed[user] > 0) {
-    //             assert(token.balanceOf(user) == claimed[user]);
-    //         }
-    //     }
-
-    //             return true;
-
-    // }
-
-
-     function echidna_avaliable() public view returns(bool){
-               assert(qi.balanceOf(address(ignite)) >0);
-
-    //     for (uint256 i = 0; i < users.length; i++) {
-    //         address user = users[i];
-    //         if (vested[user] > 0) {
-    //             assert(SecondSwap_StepVesting(vesting).available(user) == vested[user] - claimed[user]);
-    //             assert(SecondSwap_StepVesting(vesting).total(user) == vested[user]);
-    //         }
-    //     }
-                return true;
-
+    function echidna_check_eth_balance() external view returns(bool){
+        return address(ignite).balance == totalEthStaked;
+    }
+   function echidna_check_qi_balance() external view returns(bool){
+        return  qi.balanceOf(address(ignite)) ==  totalQIStaked;
     }
 }

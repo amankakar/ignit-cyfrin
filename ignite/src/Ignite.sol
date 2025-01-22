@@ -215,7 +215,7 @@ contract Ignite is
         (bool success, ) = msg.sender.call(""); 
         require(success);
 
-        emit LogAsad(); 
+        emit LogAsad();
         (, int256 avaxPrice, , uint avaxPriceUpdatedAt, ) = priceFeeds[AVAX].latestRoundData();
         (, int256 qiPrice, , uint qiPriceUpdatedAt, ) = priceFeeds[address(qi)].latestRoundData();
 
