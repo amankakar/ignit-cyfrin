@@ -119,7 +119,7 @@ function stake_with_avax(uint8 index) public {
 
     function registerNode(uint8 index, uint256 NodeID) public {
         if (isStakeETHCalled && isStakeERC20Called) {
-            uint256 userIndex =1;// boundValue(uint256(index), 0, users.length - 1);
+            uint256 userIndex = boundValue(uint256(index), 0, users.length);
             uint256 recordLength = userRecordIndexes[users[userIndex]];
                 emit Logs1("Record Length");
                 emit Logs(recordLength);
@@ -160,7 +160,48 @@ function stake_with_avax(uint8 index) public {
 
         }
     }
-    
+    function refundStakeAmount(uint8 index, uint256 NodeID) public {
+        if (isStakeETHCalled && isStakeERC20Called) {
+            uint256 userIndex =boundValue(uint256(index), 0, users.length);
+            uint256 recordLength = userRecordIndexes[users[userIndex]];
+                emit Logs1("Record Length");
+                emit Logs(recordLength);
+
+            if (recordLength > 0) {
+                StakingContract.StakeRecord[] memory userRecord = stakingInstance
+                    .getStakeRecords(users[userIndex]);
+                    uint256 recordIndex = boundValue(
+                    uint256(index),
+                    0,
+                    userRecord.length
+                );
+                emit Logs1("Record Index");
+                emit Logs(recordIndex);
+
+                emit Logs1("Record Hosting Fee");
+                emit Logs(userRecord[recordIndex].hostingFeePaid);
+
+                if (userRecord[recordIndex].hostingFeePaid!=0 && userRecord[recordIndex].status == StakingContract.StakingStatus.Provisioning) {
+                    vm.warp(userRecord[recordIndex].timestamp + 6 days); /// to decrease the revert cases
+
+                    vm.prank(benqiAdmin);
+                    stakingInstance.refundStakedAmount(
+                        users[userIndex],
+                        recordIndex
+                    );
+                    ghost_Qi_deposits -= userRecord[recordIndex].amountStaked;
+                    if (userRecord[recordIndex].tokenType == AVAX) {
+                        ghost_staking_eth_bal -= userRecord[recordIndex].hostingFeePaid;
+                    } else {
+                        ghost_Qi_deposits -= userRecord[recordIndex].hostingFeePaid;
+                    }
+                    emit Logs1("Register Node Completed");
+
+                }
+            }
+
+        }
+    }
 
     // function boundValue(uint256 a, uint256 b) internal pure returns (uint8) {
     //     if (!(a <= b)) {
