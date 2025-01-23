@@ -9,7 +9,6 @@ import {StakedAvax} from "../contracts/StakedAvax.sol";
 import {FaucetToken} from "../contracts/FaucetToken.sol";
 
 import {vm} from "@chimera/Hevm.sol";
-    
 
 abstract contract Setup is BaseSetup {
     address admin = address(0x23457643);
@@ -37,14 +36,40 @@ abstract contract Setup is BaseSetup {
     uint public constant VALIDATION_DURATION_EIGHT_WEEKS = 86400 * 7 * 8;
     uint public constant VALIDATION_DURATION_TWELVE_WEEKS = 86400 * 7 * 12;
     uint[] public amountArr = [
-        25 ether, 50 ether, 75 ether, 100 ether, 125 ether, 
-150 ether, 175 ether, 200 ether, 225 ether, 250 ether, 
-275 ether, 300 ether, 325 ether, 350 ether, 375 ether, 
-400 ether, 425 ether, 450 ether, 475 ether, 500 ether];
-    function boundValue(uint256 value, uint256 min, uint256 max) public pure returns (uint256) {
+        25 ether,
+        50 ether,
+        75 ether,
+        100 ether,
+        125 ether,
+        150 ether,
+        175 ether,
+        200 ether,
+        225 ether,
+        250 ether,
+        275 ether,
+        300 ether,
+        325 ether,
+        350 ether,
+        375 ether,
+        400 ether,
+        425 ether,
+        450 ether,
+        475 ether,
+        500 ether
+    ];
+
+    string[] public nodeIds;
+    uint[] public failRegistrationIndices;
+    uint[] public successRegistrationIndices;
+    bool releaseLockTokenFailedCalled;
+
+    function boundValue(
+        uint256 value,
+        uint256 min,
+        uint256 max
+    ) public pure returns (uint256) {
         return min + (value % (max - min));
     }
-  
 
     function setup() internal virtual override {
         users.push(address(0x1));
@@ -73,7 +98,7 @@ abstract contract Setup is BaseSetup {
         );
         for (uint i = 0; i < users.length; i++) {
             vm.prank(users[i]);
-            qi.mint( 10000000000000000 ether); // mint qi
+            qi.mint(10000000000000000 ether); // mint qi
             vm.deal(users[i], 10000000000000000 ether); // mint eth
             vm.prank(users[i]);
             qi.approve(address(ignite), type(uint256).max);
@@ -93,6 +118,4 @@ abstract contract Setup is BaseSetup {
         // echidna_check_qi_balance();
         // revert();
     }
-    
- 
 }

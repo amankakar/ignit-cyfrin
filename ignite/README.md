@@ -64,3 +64,11 @@ $ forge --help
 $ anvil --help
 $ cast --help
 ```
+
+
+
+npx hardhat test test/Ignite.test.js
+
+ rm -rf corpus && rm -rf crytic-export && echidna test/chiemara/CryticTester.sol --contract CryticTester  --config ./echidna.yaml  --corpus-dir ./corpus
+
+ medusa fuzz
