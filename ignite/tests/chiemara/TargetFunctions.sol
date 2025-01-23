@@ -15,7 +15,7 @@ abstract contract TargetFunctions is BaseTargetFunctions, Properties {
     ) public {
         amountIndex = boundValue(amountIndex,0,amountArr.length);
         userIndex = boundValue(userIndex,0,users.length);
-        validationDurationIndex = boundValue(validationDurationIndex,0,durations.length-1); // 2-12 weeks
+        validationDurationIndex = boundValue(validationDurationIndex,0,durations.length); // 2-12 weeks
         uint validationDuration = durations[validationDurationIndex];
         
         address user = users[userIndex];
@@ -31,11 +31,12 @@ abstract contract TargetFunctions is BaseTargetFunctions, Properties {
         emit LogUint(address(ignite).balance);
     }
      function register_With_Erc20_Fee(
-        uint256 userIndex,uint256 nodeId,
-         uint validationDurationIndex
+        uint256 userIndex,
+        uint256 nodeId,
+        uint validationDurationIndex
         ) public {
         userIndex = boundValue(userIndex,0, users.length);
-        validationDurationIndex = boundValue(validationDurationIndex,0,durations.length-1); // 2-12 weeks
+        validationDurationIndex = boundValue(validationDurationIndex,0,durations.length); // 2-12 weeks
         uint validationDuration = durations[validationDurationIndex];
 
         address user = users[userIndex];
@@ -52,7 +53,7 @@ abstract contract TargetFunctions is BaseTargetFunctions, Properties {
    
     function register_With_Prevalidated_QiStake(uint256 userIndex,uint256 nodeId,uint validationDurationIndex) public {
         userIndex = boundValue(userIndex,0, users.length);
-        validationDurationIndex = boundValue(validationDurationIndex,0,durations.length-1);
+        validationDurationIndex = boundValue(validationDurationIndex,0,durations.length);
         uint validationDuration = durations[validationDurationIndex];
 
         address user = users[userIndex];
@@ -73,7 +74,7 @@ abstract contract TargetFunctions is BaseTargetFunctions, Properties {
     }
     function register_Without_Collateral(uint256 userIndex, uint256 nodeId,uint validationDurationIndex) public {
         userIndex = boundValue(userIndex,0, users.length);
-        validationDurationIndex = boundValue(validationDurationIndex,0,durations.length-1);
+        validationDurationIndex = boundValue(validationDurationIndex,0,durations.length);
         uint validationDuration = durations[validationDurationIndex];
 
         address user = users[userIndex];
@@ -86,7 +87,7 @@ abstract contract TargetFunctions is BaseTargetFunctions, Properties {
 
       function register_With_Avax_Fee(uint256 userIndex, uint validationDurationIndex,uint256 nodeId) public {
         userIndex = boundValue(userIndex,0, users.length);
-        validationDurationIndex = boundValue(validationDurationIndex,0,durations.length-1);
+        validationDurationIndex = boundValue(validationDurationIndex,0,durations.length);
         uint validationDuration = durations[validationDurationIndex];
 
         address user = users[userIndex];

@@ -1106,11 +1106,14 @@ describe("Ignite", function () {
             .to.equal(hre.ethers.utils.parseEther("2000"));
         });
 
-        it("QI", async function () {
+        it.only("QI", async function () {
           // AVAX price is $20 and QI price is $0.01
+          fee = await ignite.getRegistrationFee(86400 * 7 * 12);
           const qiFee = fee.mul(2000);
 
-          const registrationReceipt = await ignite.registerWithErc20Fee(qi.address, "NodeID-QI-FEE", blsPoP, 86400 * 14);
+          await grantRole("ROLE_RELEASE_LOCKED_TOKENS", admin.address);
+
+          const registrationReceipt = await ignite.registerWithErc20Fee(qi.address, "NodeID-QI-FEE", blsPoP, 86400 * 7 * 12);
 
           await expect(registrationReceipt).to.changeTokenBalance(qi, admin, qiFee.mul(-1));
 

@@ -72,8 +72,8 @@ abstract contract Setup is BaseSetup {
             1500 ether // max eth
         );
         for (uint i = 0; i < users.length; i++) {
-            vm.prank(admin);
-            qi.mint(users[i], 10000000000000000 ether); // mint qi
+            vm.prank(users[i]);
+            qi.mint( 10000000000000000 ether); // mint qi
             vm.deal(users[i], 10000000000000000 ether); // mint eth
             vm.prank(users[i]);
             qi.approve(address(ignite), type(uint256).max);

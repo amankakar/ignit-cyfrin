@@ -16,8 +16,8 @@ contract FaucetToken is ERC20 {
         _decimals = __decimals;
     }
 
-    function mint(address a,uint256 _amount) external {
-        _mint(a, _amount);
+    function mint(uint256 _amount) external {
+        _mint(msg.sender, _amount);
     }
 
     function decimals() public view override returns (uint8) {
