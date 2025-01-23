@@ -1,0 +1,17 @@
+[profile.default]
+src = "src"
+out = "artifacts"
+libs = ["node_modules"]
+remappings = [
+    "@crytic/=node_modules/@crytic/",
+    "@ensdomains/=node_modules/@ensdomains/",
+    "@ethereum-waffle/=node_modules/@ethereum-waffle/",
+    "@openzeppelin/=node_modules/@openzeppelin/",
+    "chimera/=node_modules/chimera/",
+    "ds-test/=node_modules/chimera/lib/forge-std/lib/ds-test/",
+    "forge-std/=node_modules/chimera/lib/forge-std/",
+    "hardhat/=node_modules/hardhat/",
+    "solmate/=node_modules/solmate/",
+]
+
+# See more config options https://github.com/foundry-rs/foundry/blob/master/crates/config/README.md#all-options

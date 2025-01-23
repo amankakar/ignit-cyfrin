@@ -12,7 +12,7 @@ codeSize: 294576
 # balanceContract: 0xffffffffffffffffffffffsffffffffffffffffffffffffff
 
 #testLimit is the number of test sequences to run
-testLimit: 10000
+testLimit: 100000
 
 #seqLen defines how many transactions are in a test sequence
 seqLen: 300
