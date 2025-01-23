@@ -40,10 +40,13 @@ abstract contract Setup is BaseSetup {
     uint256 public minSlippage;
     uint256 public ghost_maxSlippage;
     uint256 public ghost_refundPeriod;
+    uint256 ghost_zeeveWallet_fee;
     uint256 ghost_staking_eth_bal=0;
     uint256 ghost_Qi_deposits =0;
     mapping (address users => uint256 qiDeposits) public usersQiDepsoits;
     mapping (address users => uint256 EthFee) public usersETHFee;
+    mapping (address users => uint256 lastIndexes) public userRecordIndexes;
+
 
     address  public qiTokenAddress = 0x8729438EB15e2C8B576fCc6AeCdA6A148776C0F5; //0xFFd31a26B7545243F430C0999d4BF11A93408a8C;
     address  public avaxPriceFeed = 0x0A77230d17318075983913bC2145DB16C7366156;//0x7dF6058dd1069998571497b8E3c0Eb13A8cb6a59;
@@ -61,6 +64,15 @@ abstract contract Setup is BaseSetup {
     uint public constant VALIDATION_DURATION_EIGHT_WEEKS = 86400 * 7 * 8;
     uint public constant VALIDATION_DURATION_TWELVE_WEEKS = 86400 * 7 * 12;
     uint public constant VALIDATION_DURATION_ONE_YEAR = 86400 * 365;
+
+        bytes public blsKey =
+        hex"8d609cdd38ffc9ad01c91d1ae4fccb8cd6c75a6ad33a401da42283b0c3b59bbaf5abc172335ea4d9c31baa936818f0ab";
+
+    bytes public blsSignature =
+        hex"8c12c805e7dfe4bfe38be44685ee852d931d73b3c0820a1343d731909120cee4895f9b60990520a90d06a031a42e0f8616d415b543408c24be0da90d5e7fa8242f4fd32dadf34c790996ca474dbdbcd763f82c53880db19fd3b30d13cee278b4";
+
+    bytes public blsPoP = abi.encodePacked(blsKey, blsSignature);
+
 
     using EnumerableSetUpgradeable for EnumerableSetUpgradeable.AddressSet;
 
@@ -135,10 +147,11 @@ MockToken qi = MockToken(qiTokenAddress);
             vm.prank(users[i]);
             qi.approve(address(stakingInstance), type(uint256).max);
         }
+        vm.deal(benqiAdmin , 1 ether);
+        vm.deal(zeeveSuperAdmin , 1 ether);
 
-// stake_with_avax();
+// stake_with_avax(1);
     }
-
 
          
 
@@ -149,6 +162,10 @@ function clampLte(uint256 a, uint256 b) internal pure returns (uint8) {
             return uint8(value);
         }
         return uint8(a);
+    }
+
+    function boundValue(uint256 value, uint256 min, uint256 max) public pure returns (uint256) {
+        return min + (value % (max - min));
     }
 
 

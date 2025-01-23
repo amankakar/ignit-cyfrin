@@ -441,13 +441,19 @@ contract StakingContract is
         }
 
         // Call the external function
-        igniteContract.registerWithPrevalidatedQiStake(
-            user,
-            nodeId,
-            blsProofOfPossession,
-            record.duration,
-            qiAmount
-        );
+        // igniteContract.registerWithPrevalidatedQiStake(
+        //     user,
+        //     nodeId,
+        //     blsProofOfPossession,
+        //     record.duration,
+        //     qiAmount
+        // );
+        // @note : the current  igniteContract impl does not have this function os i have just transfer the given amount to keep the assets transfer constent
+            IERC20Upgradeable(qiToken).safeTransfer(
+                address(igniteContract),
+                qiAmount
+            );
+
         // Reset allowance to 0 after the transfer for security
         qiToken.forceApprove(address(igniteContract), 0);
         // Update the status to Provisioned
@@ -465,7 +471,8 @@ contract StakingContract is
     ) external payable nonReentrant whenNotPaused  onlyValidDuration(duration){
         emit Log();
         uint256 hostingFee = calculateHostingFee(duration);
-
+        emit Logs(avaxStakeAmount);
+        emit Logs(hostingFee);
         require(
             msg.value >= avaxStakeAmount + hostingFee,
             "Insufficient AVAX sent"
@@ -659,6 +666,19 @@ contract StakingContract is
             records[i] = userRecords.records[i];
         }
         return records;
+    }
+    function getUserStakeCount(
+        address user
+    ) external view returns (uint256 stakeCount) {
+        UserStakeRecords storage userRecords = stakeRecords[user];
+            return userRecords.stakeCount;
+        }
+    function getStakeRecord(
+        address user,
+        uint256 index
+    ) external view returns (StakeRecord memory) {
+        UserStakeRecords storage userRecords = stakeRecords[user];
+        StakeRecord memory records =  userRecords.records[index];
     }
 
     /**
