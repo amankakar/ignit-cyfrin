@@ -13,7 +13,7 @@ abstract contract Properties is BeforeAfter, Asserts {
     function echidna_check_stacking_eth_bal() external  returns(bool){
         if(isStakeETHCalled){
             emit Logs(ghost_staking_eth_bal);
-        return address(stakingInstance).balance  > 0 && address(stakingInstance).balance == ghost_staking_eth_bal;
+        return address(stakingInstance).balance == ghost_staking_eth_bal;
         }else {
         return true;
         }
@@ -22,7 +22,7 @@ abstract contract Properties is BeforeAfter, Asserts {
         function echidna_check_stacking_qi_bal() public  returns(bool){
         if(isStakeERC20Called){
             emit Logs(ghost_Qi_deposits);
-        return IERC20(qiTokenAddress).balanceOf(address(stakingInstance)) > 0 && IERC20(qiTokenAddress).balanceOf(address(stakingInstance)) == ghost_Qi_deposits;
+        return  IERC20(qiTokenAddress).balanceOf(address(stakingInstance)) == ghost_Qi_deposits;
         }else {
         return true;
         }

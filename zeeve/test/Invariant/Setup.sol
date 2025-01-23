@@ -149,11 +149,9 @@ MockToken qi = MockToken(qiTokenAddress);
         }
         vm.deal(benqiAdmin , 1 ether);
         vm.deal(zeeveSuperAdmin , 1 ether);
+ }
+    
 
-// stake_with_avax(1);
-    }
-
-         
 
 
 function clampLte(uint256 a, uint256 b) internal pure returns (uint8) {
