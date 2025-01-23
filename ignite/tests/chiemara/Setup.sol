@@ -28,6 +28,8 @@ abstract contract Setup is BaseSetup {
     // ghost variable
     uint256 totalEthStaked;
     uint256 totalQIStaked;
+    uint public qiPriceMultiplier = 10_000;
+
 
     function setup() internal virtual override {
         users.push(address(0x1));
@@ -65,6 +67,7 @@ abstract contract Setup is BaseSetup {
         ignite.grantRole(keccak256("ROLE_WITHDRAW"),admin);
         vm.prank(admin);
         ignite.grantRole(keccak256("ROLE_RELEASE_LOCKED_TOKENS"),admin);
+
         vm.prank(admin);
         ignite.addPaymentToken(address(qi),address(qiPriceFeed),1 days);
     }
