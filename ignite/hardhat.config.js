@@ -12,7 +12,7 @@ subtask(
   TASK_COMPILE_SOLIDITY_GET_SOURCE_PATHS,
   async (_, { config }) => {
     const paths = await glob(path.join(config.paths.root, "src/**/*.sol"));
-    const testPaths = await glob(path.join(config.paths.root, "tests/contracts/*.sol"));
+    const testPaths = await glob(path.join(config.paths.root, "test/contracts/*.sol"));
 
     return [
       ...paths,

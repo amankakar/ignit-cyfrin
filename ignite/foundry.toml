@@ -1,13 +1,14 @@
 [profile.default]
 src = "src"
-out = "artifacts"
-libs = ["node_modules"]
+out = "out"
+libs = ["node_modules", "lib"]
+via-ir = true
 remappings = [
     "@crytic/=node_modules/@crytic/",
     "@ensdomains/=node_modules/@ensdomains/",
     "@ethereum-waffle/=node_modules/@ethereum-waffle/",
     "@openzeppelin/=node_modules/@openzeppelin/",
-    "chimera/=node_modules/chimera/",
+    "@chimera/=node_modules/chimera/src",
     "ds-test/=node_modules/chimera/lib/forge-std/lib/ds-test/",
     "forge-std/=node_modules/chimera/lib/forge-std/",
     "hardhat/=node_modules/hardhat/",
