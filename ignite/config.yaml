@@ -1,3 +1,4 @@
+testMode: "property" 
 #codeSize max code size for deployed contratcs (default 24576, per EIP-170)
 codeSize: 294576
 
@@ -11,7 +12,7 @@ codeSize: 294576
 # balanceContract: 0xffffffffffffffffffffffsffffffffffffffffffffffffff
 
 #testLimit is the number of test sequences to run
-testLimit: 100000
+testLimit: 10000
 
 #seqLen defines how many transactions are in a test sequence
 seqLen: 300
@@ -25,9 +26,6 @@ propMaxGas: 1000000000
 #testMaxGas is a gas limit; does not cause failure, but terminates sequence
 testMaxGas: 1000000000
 
-
-testMode : "property"
-
 # list of methods to filter
 #filterFunctions: ["openCdpExt"]
 # by default, blacklist methods in filterFunctions
@@ -40,18 +38,29 @@ stopOnFail: false
 coverage: true
 
 # list of file formats to save coverage reports in; default is all possible formats
+<<<<<<< Updated upstream
 # coverageFormats: ["lcov", "html","txt"]
 coverageFormats: ["txt"]
+=======
+coverageFormats: ["lcov", "html" , "txt"]
+>>>>>>> Stashed changes
 
 #directory to save the corpus; by default is disabled
-corpusDir: "test/invariants/_corpus/echidna/default/_data/corpus"
+corpusDir: "corpus"
 # constants for corpus mutations (for experimentation only)
 #mutConsts: [100, 1, 1]
 
 #remappings
+<<<<<<< Updated upstream
 cryticArgs: ["--solc-remaps", "@crytic/properties/=node_modules/@crytic/properties/ @openzeppelin/=node_modules/@openzeppelin/ @chimera/=node_modules/chimera/src/"]
+=======
+cryticArgs: ["--foundry-compile-all","--solc-remaps", "@crytic/properties/=node_modules/@crytic/properties/ @openzeppelin/=node_modules/@openzeppelin/"]
+>>>>>>> Stashed changes
 
 solcArgs: "via-ir"
+
+rpcUrl: "https://api.avax-test.network/ext/bc/C/rpc"
+
 
 # deployContracts: [["0xf01", "Pretty"], ["0xf02", "Strings"]]
 

@@ -5,7 +5,7 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 
-contract FaucetToken is ERC20 {
+contract MockToken is ERC20 {
     uint8 private _decimals;
 
     constructor(

@@ -15,6 +15,7 @@ import "@looksrare/contracts-libs/contracts/lowLevelCallers/LowLevelWETH.sol";
 import "./interfaces/IJoeRouter02.sol";
 import "./interfaces/IIgnite.sol";
 
+import "hardhat/console.sol";
 contract StakingContract is
     Initializable,
     AccessControlUpgradeable,
@@ -123,6 +124,7 @@ contract StakingContract is
         uint256 amount,
         uint256 refundId
     );
+    event Log();
 
     // Struct for contract addresses
     struct ContractAddresses {
@@ -431,6 +433,7 @@ contract StakingContract is
                 2300
             );
         } else {
+            // @audit : the transfer is done here
             IERC20Upgradeable(record.tokenType).safeTransfer(
                 zeeveWallet,
                 record.hostingFeePaid
@@ -459,7 +462,8 @@ contract StakingContract is
      */
     function stakeWithAVAX(
         uint256 duration
-    ) external payable nonReentrant whenNotPaused onlyValidDuration(duration) {
+    ) external payable nonReentrant whenNotPaused  onlyValidDuration(duration){
+        emit Log();
         uint256 hostingFee = calculateHostingFee(duration);
 
         require(
@@ -470,10 +474,9 @@ contract StakingContract is
         // Calculate the total required amount
         uint256 totalRequired = avaxStakeAmount + hostingFee;
         uint256 excessAmount = msg.value - totalRequired;
-
+        emit Logs(IERC20Upgradeable(address(qiToken)).balanceOf(address(this)));
         // Perform the swap and check slippage
         uint256 stakingAmountInQi = swapForQI(avaxStakeAmount, AVAX);
-
         // Refund the excess amount to the user
         if (excessAmount > 0) {
             _transferETHAndWrapIfFailWithGasLimit(
@@ -486,7 +489,6 @@ contract StakingContract is
         }
         UserStakeRecords storage userRecords = stakeRecords[msg.sender];
         uint256 index = userRecords.stakeCount;
-
         // Record the staking details
         userRecords.records[index] = StakeRecord({
             amountStaked: stakingAmountInQi,
@@ -498,6 +500,8 @@ contract StakingContract is
         });
 
         userRecords.stakeCount += 1;
+        emit Logs(stakingAmountInQi);
+        emit Logs(IERC20Upgradeable(address(qiToken)).balanceOf(address(this)));
 
         emit Staked(
             msg.sender,
@@ -509,6 +513,7 @@ contract StakingContract is
             block.timestamp
         );
     }
+    event AmanLog(uint);
 
     /**
      * @dev Stake ERC20 tokens for QI tokens.
@@ -523,6 +528,8 @@ contract StakingContract is
     ) external nonReentrant whenNotPaused onlyValidDuration(duration) {
         require(isTokenAccepted(token), "Token not accepted");
         uint256 hostingFee = calculateHostingFee(duration);
+        emit AmanLog(hostingFee);
+        emit AmanLog(avaxStakeAmount);
 
         uint256 totalRequiredToken = convertAvaxToToken(
             token,
@@ -530,6 +537,7 @@ contract StakingContract is
         );
 
         require(amount >= totalRequiredToken, "Insufficient token");
+        emit AmanLog(totalRequiredToken);
 
         // Transfer tokens from the user to the contract
         IERC20Upgradeable(token).safeTransferFrom(
@@ -831,7 +839,7 @@ contract StakingContract is
 
     function calculateHostingFee(
         uint256 duration
-    ) internal view returns (uint256) {
+    ) public view returns (uint256) { // @audit : chang to public for testing
         require(isValidDuration(duration), "Invalid duration");
 
         uint256 numFortnights = duration / FORTNIGHT_IN_SECONDS; // 14 days
@@ -848,13 +856,13 @@ contract StakingContract is
     function convertAvaxToToken(
         address token,
         uint256 avaxAmount
-    ) internal view returns (uint256) {
+    ) public view returns (uint256) {
         uint256 avaxUsdPrice = _getPriceInUSD(AVAX);
         uint256 tokenUsdPrice = _getPriceInUSD(token); // Get the price of 1 token in USD
 
         return (avaxUsdPrice * avaxAmount) / tokenUsdPrice;
     }
-
+// event Logs(uint256);
     /**
      * @dev Swap tokens for QI tokens.
      * @param amountIn The amount of tokens to swap.
@@ -864,7 +872,7 @@ contract StakingContract is
     function swapForQI(
         uint256 amountIn,
         address token
-    ) internal returns (uint256) {
+    ) public returns (uint256) {
         uint256 expectedQiAmount = convertTokenToQi(token, amountIn);
 
         address[] memory path;
@@ -882,12 +890,16 @@ contract StakingContract is
         // Get the best price quote
         uint256 slippageFactor = 100 - slippage; // Convert slippage percentage to factor
         uint256 amountOutMin = (expectedQiAmount * slippageFactor) / 100; // Apply slippage
-// pool state : 10 token2 swap outMin => 10 token1 
-// asad place : 10 token2 slip minOut 8 token1 
-// aman : pool unbalane aisy k minout asad swap execute 8 token1
+        emit Logs(amountOutMin);
+        // emit Logs(expectedQiAmount);
+
+    // pool state : 10 token2 swap outMin => 10 token1 
+    // asad place : 10 token2 slip minOut 8 token1 
+    // aman : pool unbalane aisy k minout asad swap execute 8 token1
         uint256[] memory amountOutReal;
         uint256 deadline = block.timestamp; // @note : not best choice 
-
+uint256[] memory amountsOut = joeRouter.getAmountsOut(amountIn ,path);
+emit Logs(amountsOut[amountsOut.length-1]);
         if (token == AVAX) {
             // Perform the swap for AVAX
             amountOutReal = joeRouter.swapExactAVAXForTokens{value: amountIn}(
@@ -942,18 +954,16 @@ contract StakingContract is
         require(token != address(0), "Invalid token address");
         require(priceFeedAddress != address(0), "Invalid price feed address");
         require(maxPriceAge > 0, "Invalid max price age");
-
         AggregatorV3Interface priceFeed = AggregatorV3Interface(
             priceFeedAddress
         );
         (, int256 price, , uint256 updatedAt, ) = priceFeed.latestRoundData();
         require(price > 0, "Invalid price");
         require(block.timestamp - updatedAt <= maxPriceAge, "Stale price");
-
         priceFeeds[token] = priceFeed;
         maxPriceAges[token] = maxPriceAge;
     }
-
+event Logs(uint);
     /**
      * @dev Gets the price of a given token in USD.
      * @param token The address of the token.
@@ -992,7 +1002,7 @@ contract StakingContract is
     function convertTokenToQi(
         address token,
         uint256 amount
-    ) internal view returns (uint256) {
+    ) public view returns (uint256) {
         uint256 tokenUsdPrice = _getPriceInUSD(token);
         uint256 qiUsdPrice = _getPriceInUSD(address(qiToken)); // Get the price of 1 QI in USD
 

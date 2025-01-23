@@ -114,3 +114,6 @@ contracts/coverage.json
 .openzeppelin/
 yarn.lock
 out/
+corpus/
+lib/
+crytic-export/
