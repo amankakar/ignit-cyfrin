@@ -5,30 +5,21 @@ import {BaseTargetFunctions} from "@chimera/BaseTargetFunctions.sol";
 import {BeforeAfter} from "./BeforeAfter.sol";
 import {Properties} from "./Properties.sol";
 import {vm} from "@chimera/Hevm.sol";
+    event LogUint(uint);
 
 abstract contract TargetFunctions is BaseTargetFunctions, Properties {
   
 
-    function boundValue(uint256 value, uint256 min, uint256 max) public pure returns (uint256) {
-        if (min > max) {
-            (min, max) = (max, min); // Swap values if range is incorrect
-        }
-        
-        uint256 range = max - min;  // Exclusive range calculation
-        return min + (value % range);
-    }
-  
-
-    function register_With_Stake(uint256 userIndex, uint256 amount,uint256 nodeId,uint validationDurationIndex) public {
+   function register_With_Stake(
+    uint256 userIndex, uint256 amountIndex,uint256 nodeId,uint validationDurationIndex
+    ) public {
+        amountIndex = boundValue(amountIndex,0,amountArr.length);
         userIndex = boundValue(userIndex,0,users.length);
-        validationDurationIndex = boundValue(validationDurationIndex,0,durations.length); // 2-12 weeks
+        validationDurationIndex = boundValue(validationDurationIndex,0,durations.length-1); // 2-12 weeks
         uint validationDuration = durations[validationDurationIndex];
         
         address user = users[userIndex];
-        amount = boundValue(amount,25 ether,1500 ether);
-        if (amount % 1e9 != 0) {
-            amount - (amount % 1e9);
-        }
+        uint amount = amountArr[amountIndex];
         (, int avaxPrice, , , ) = avaxPriceFeed.latestRoundData();
         (, int qiPrice, , , ) = qiPriceFeed.latestRoundData();
         uint qiAmount = uint(avaxPrice) * (2000e18 - amount) / uint(qiPrice) / 10;
@@ -36,10 +27,15 @@ abstract contract TargetFunctions is BaseTargetFunctions, Properties {
         totalEthStaked +=amount;
         vm.prank(user);
         ignite.registerWithStake{value:amount}(string(abi.encodePacked("NodeID-",nodeId)), blsPoP, validationDuration);
+        emit LogUint(totalEthStaked);
+        emit LogUint(address(ignite).balance);
     }
-    function register_With_Erc20_Fee(uint256 userIndex,uint256 nodeId, uint validationDurationIndex) public {
+     function register_With_Erc20_Fee(
+        uint256 userIndex,uint256 nodeId,
+         uint validationDurationIndex
+        ) public {
         userIndex = boundValue(userIndex,0, users.length);
-        validationDurationIndex = boundValue(validationDurationIndex,0,durations.length); // 2-12 weeks
+        validationDurationIndex = boundValue(validationDurationIndex,0,durations.length-1); // 2-12 weeks
         uint validationDuration = durations[validationDurationIndex];
 
         address user = users[userIndex];
@@ -53,9 +49,10 @@ abstract contract TargetFunctions is BaseTargetFunctions, Properties {
         vm.prank(user);
         ignite.registerWithErc20Fee(address(qi),string(abi.encodePacked("NodeID-",nodeId)), blsPoP, validationDuration);
     }
+   
     function register_With_Prevalidated_QiStake(uint256 userIndex,uint256 nodeId,uint validationDurationIndex) public {
         userIndex = boundValue(userIndex,0, users.length);
-        validationDurationIndex = boundValue(validationDurationIndex,0,durations.length);
+        validationDurationIndex = boundValue(validationDurationIndex,0,durations.length-1);
         uint validationDuration = durations[validationDurationIndex];
 
         address user = users[userIndex];
@@ -76,7 +73,7 @@ abstract contract TargetFunctions is BaseTargetFunctions, Properties {
     }
     function register_Without_Collateral(uint256 userIndex, uint256 nodeId,uint validationDurationIndex) public {
         userIndex = boundValue(userIndex,0, users.length);
-        validationDurationIndex = boundValue(validationDurationIndex,0,durations.length);
+        validationDurationIndex = boundValue(validationDurationIndex,0,durations.length-1);
         uint validationDuration = durations[validationDurationIndex];
 
         address user = users[userIndex];
@@ -89,7 +86,7 @@ abstract contract TargetFunctions is BaseTargetFunctions, Properties {
 
       function register_With_Avax_Fee(uint256 userIndex, uint validationDurationIndex,uint256 nodeId) public {
         userIndex = boundValue(userIndex,0, users.length);
-        validationDurationIndex = boundValue(validationDurationIndex,0,durations.length);
+        validationDurationIndex = boundValue(validationDurationIndex,0,durations.length-1);
         uint validationDuration = durations[validationDurationIndex];
 
         address user = users[userIndex];

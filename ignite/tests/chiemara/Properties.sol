@@ -7,9 +7,7 @@ import {BeforeAfter} from "./BeforeAfter.sol";
 
 
 abstract contract Properties is BeforeAfter, Asserts {
-    event LogUint(uint);
-   function echidna_check_eth_balance() external  returns(bool){
-    emit LogUint(totalEthStaked);
+   function echidna_check_eth_balance() external  view returns(bool){
         return address(ignite).balance == totalEthStaked;
     }
    function echidna_check_qi_balance() external view returns(bool){

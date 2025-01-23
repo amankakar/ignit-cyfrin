@@ -116,7 +116,6 @@ contract Ignite is
     constructor() {
         // _disableInitializers();
     }
-    event LogAsad(uint);
 
     function initialize(
         address _sAVAX,
@@ -373,13 +372,12 @@ contract Ignite is
             "ROLE_REGISTER_WITH_FLEXIBLE_PRICE_CHECK"
         );
 
-        // (, int256 avaxPrice, , uint avaxPriceUpdatedAt, ) = priceFeeds[AVAX].latestRoundData();
-        // (, int256 qiPrice, , uint qiPriceUpdatedAt, ) = priceFeeds[address(qi)].latestRoundData();
-int256 avaxPrice = 121;
-int256 qiPrice = 120;
+        (, int256 avaxPrice, , uint avaxPriceUpdatedAt, ) = priceFeeds[AVAX].latestRoundData();
+        (, int256 qiPrice, , uint qiPriceUpdatedAt, ) = priceFeeds[address(qi)].latestRoundData();
+
         require(avaxPrice > 0 && qiPrice > 0);
-        // require(block.timestamp - avaxPriceUpdatedAt <= maxPriceAges[AVAX]);
-        // require(block.timestamp - qiPriceUpdatedAt <= maxPriceAges[address(qi)]);
+        require(block.timestamp - avaxPriceUpdatedAt <= maxPriceAges[AVAX]);
+        require(block.timestamp - qiPriceUpdatedAt <= maxPriceAges[address(qi)]);
 
         // 200 AVAX + 1 AVAX fee = 201e18
         uint expectedQiAmount = uint(avaxPrice) * 201e18 / uint(qiPrice);
