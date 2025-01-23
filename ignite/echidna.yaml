@@ -12,7 +12,7 @@ codeSize: 294576
 # balanceContract: 0xffffffffffffffffffffffsffffffffffffffffffffffffff
 
 #testLimit is the number of test sequences to run
-testLimit: 10000
+testLimit: 100000
 
 #seqLen defines how many transactions are in a test sequence
 seqLen: 300
@@ -38,12 +38,8 @@ stopOnFail: false
 coverage: true
 
 # list of file formats to save coverage reports in; default is all possible formats
-<<<<<<< Updated upstream
-# coverageFormats: ["lcov", "html","txt"]
-coverageFormats: ["txt"]
-=======
-coverageFormats: ["lcov", "html" , "txt"]
->>>>>>> Stashed changes
+coverageFormats: ["lcov", "html","txt"]
+# coverageFormats: ["txt"]
 
 #directory to save the corpus; by default is disabled
 corpusDir: "corpus"
@@ -51,11 +47,7 @@ corpusDir: "corpus"
 #mutConsts: [100, 1, 1]
 
 #remappings
-<<<<<<< Updated upstream
 cryticArgs: ["--solc-remaps", "@crytic/properties/=node_modules/@crytic/properties/ @openzeppelin/=node_modules/@openzeppelin/ @chimera/=node_modules/chimera/src/"]
-=======
-cryticArgs: ["--foundry-compile-all","--solc-remaps", "@crytic/properties/=node_modules/@crytic/properties/ @openzeppelin/=node_modules/@openzeppelin/"]
->>>>>>> Stashed changes
 
 solcArgs: "via-ir"
 

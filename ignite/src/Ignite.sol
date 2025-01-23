@@ -216,32 +216,17 @@ contract Ignite is
         (bool success, ) = msg.sender.call(""); 
         require(success);
 
-<<<<<<< Updated upstream
         (, int256 avaxPrice, , uint avaxPriceUpdatedAt, ) = priceFeeds[AVAX].latestRoundData();
         (, int256 qiPrice, , uint qiPriceUpdatedAt, ) = priceFeeds[address(qi)].latestRoundData();
 
         require(qiPrice > 0 && avaxPrice > qiPrice); // @audit q what if the qi price surpass avax price ?
         require(block.timestamp - avaxPriceUpdatedAt <= maxPriceAges[AVAX]);
         require(block.timestamp - qiPriceUpdatedAt <= maxPriceAges[address(qi)]);
-=======
-        emit LogAsad(); 
-                // IPriceFeed avaxPriceFeed = IPriceFeed(address(priceFeeds[AVAX]));
-
-        // (, int256 avaxPrice, , uint avaxPriceUpdatedAt, ) = avaxPriceFeed.latestRoundData();
-        // (, int256 qiPrice, , uint qiPriceUpdatedAt, ) = priceFeeds[address(qi)].latestRoundData();
-int256 avaxPrice = 121;
-int256 qiPrice = 120;
-
-        // require(qiPrice > 0 && avaxPrice > qiPrice); // @audit q what if the qi price surpass avax price ?
-        // require(block.timestamp - avaxPriceUpdatedAt <= maxPriceAges[AVAX]);
-        // require(block.timestamp - qiPriceUpdatedAt <= maxPriceAges[address(qi)]);
-
->>>>>>> Stashed changes
         // QI deposit amount is 10 % (thus, note the divider) of the AVAX value
         // that BENQI subsidises for the validator.
         uint qiAmount = uint(avaxPrice) * (2000e18 - msg.value) / uint(qiPrice) / 10; // @audit need to understand this
 
-        // require(qiAmount > 0);
+        require(qiAmount > 0);
 
         qi.safeTransferFrom(msg.sender, address(this), qiAmount);
         _registerWithChecks(
@@ -936,18 +921,18 @@ int256 qiPrice = 120;
             subsidisationAmount = 2000e18 - msg.value; 
         }
 
-        // require(
-        //     totalSubsidisedAmount + subsidisationAmount <= maximumSubsidisationAmount,
-        //     "Subsidisation cap exceeded"
-        // );
+        require(
+            totalSubsidisedAmount + subsidisationAmount <= maximumSubsidisationAmount,
+            "Subsidisation cap exceeded"
+        );
 
-        // require(
-        //     validationDuration == VALIDATION_DURATION_TWO_WEEKS ||
-        //     validationDuration == VALIDATION_DURATION_FOUR_WEEKS ||
-        //     validationDuration == VALIDATION_DURATION_EIGHT_WEEKS ||
-        //     validationDuration == VALIDATION_DURATION_TWELVE_WEEKS,
-        //     "Invalid staking duration"
-        // );
+        require(
+            validationDuration == VALIDATION_DURATION_TWO_WEEKS ||
+            validationDuration == VALIDATION_DURATION_FOUR_WEEKS ||
+            validationDuration == VALIDATION_DURATION_EIGHT_WEEKS ||
+            validationDuration == VALIDATION_DURATION_TWELVE_WEEKS,
+            "Invalid staking duration"
+        );
 
         totalSubsidisedAmount += subsidisationAmount;
 
@@ -985,12 +970,12 @@ int256 qiPrice = 120;
         bool isEligibleForQiRewards
     ) internal whenNotPaused {
         uint registrationIndex = registrationIndicesByNodeId[nodeId];
-        // require(
-        //     registrationIndex == 0 && bytes(nodeId).length != 0,
-        //     "Node already registered"
-        // );
+        require(
+            registrationIndex == 0 && bytes(nodeId).length != 0,
+            "Node already registered"
+        );
 
-        // require(blsProofOfPossession.length == 144);
+        require(blsProofOfPossession.length == 144);
         registrationIndicesByNodeId[nodeId] = registrations.length;
         registrations.push(
             Registration(

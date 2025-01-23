@@ -30,6 +30,12 @@ abstract contract Setup is BaseSetup {
     uint256 totalQIStaked;
     uint public qiPriceMultiplier = 10_000;
 
+    uint256[] public durations;
+    uint public constant VALIDATION_DURATION_TWO_WEEKS = 86400 * 7 * 2;
+    uint public constant VALIDATION_DURATION_FOUR_WEEKS = 86400 * 7 * 4;
+    uint public constant VALIDATION_DURATION_EIGHT_WEEKS = 86400 * 7 * 8;
+    uint public constant VALIDATION_DURATION_TWELVE_WEEKS = 86400 * 7 * 12;
+    uint public constant VALIDATION_DURATION_ONE_YEAR = 86400 * 365;
 
     function setup() internal virtual override {
         users.push(address(0x1));
@@ -64,11 +70,16 @@ abstract contract Setup is BaseSetup {
             qi.approve(address(ignite), type(uint256).max);
         }
         vm.prank(admin);
-        ignite.grantRole(keccak256("ROLE_WITHDRAW"),admin);
+        ignite.grantRole(keccak256("ROLE_WITHDRAW"), admin);
         vm.prank(admin);
-        ignite.grantRole(keccak256("ROLE_RELEASE_LOCKED_TOKENS"),admin);
+        ignite.grantRole(keccak256("ROLE_RELEASE_LOCKED_TOKENS"), admin);
 
         vm.prank(admin);
-        ignite.addPaymentToken(address(qi),address(qiPriceFeed),1 days);
+        ignite.addPaymentToken(address(qi), address(qiPriceFeed), 1 days);
+        durations.push(VALIDATION_DURATION_TWO_WEEKS);
+        durations.push(VALIDATION_DURATION_FOUR_WEEKS);
+        durations.push(VALIDATION_DURATION_EIGHT_WEEKS);
+        durations.push(VALIDATION_DURATION_TWELVE_WEEKS);
+        durations.push(VALIDATION_DURATION_ONE_YEAR);
     }
 }

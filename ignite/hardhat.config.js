@@ -2,7 +2,6 @@ require("@nomiclabs/hardhat-waffle");
 require("@nomiclabs/hardhat-ethers");
 require("@openzeppelin/test-helpers");
 require("@openzeppelin/hardhat-upgrades");
-require("@nomicfoundation/hardhat-verify");
 
 const glob = require("hardhat/internal/util/glob").glob;
 const path = require("node:path");
