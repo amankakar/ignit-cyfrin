@@ -10,3 +10,6 @@
 [submodule "lib/chimera"]
 	path = lib/chimera
 	url = https://github.com/Recon-Fuzz/chimera
+[submodule "ignite/lib/forge-std"]
+	path = ignite/lib/forge-std
+	url = https://github.com/foundry-rs/forge-std
