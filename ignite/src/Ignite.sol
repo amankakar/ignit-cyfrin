@@ -116,6 +116,7 @@ contract Ignite is
     constructor() {
         // _disableInitializers();
     }
+    event LogAsad(uint);
 
     function initialize(
         address _sAVAX,
@@ -215,14 +216,12 @@ contract Ignite is
         (bool success, ) = msg.sender.call(""); 
         require(success);
 
-        emit LogAsad();
         (, int256 avaxPrice, , uint avaxPriceUpdatedAt, ) = priceFeeds[AVAX].latestRoundData();
         (, int256 qiPrice, , uint qiPriceUpdatedAt, ) = priceFeeds[address(qi)].latestRoundData();
 
         require(qiPrice > 0 && avaxPrice > qiPrice); // @audit q what if the qi price surpass avax price ?
         require(block.timestamp - avaxPriceUpdatedAt <= maxPriceAges[AVAX]);
         require(block.timestamp - qiPriceUpdatedAt <= maxPriceAges[address(qi)]);
-
         // QI deposit amount is 10 % (thus, note the divider) of the AVAX value
         // that BENQI subsidises for the validator.
         uint qiAmount = uint(avaxPrice) * (2000e18 - msg.value) / uint(qiPrice) / 10; // @audit need to understand this
@@ -230,7 +229,6 @@ contract Ignite is
         require(qiAmount > 0);
 
         qi.safeTransferFrom(msg.sender, address(this), qiAmount);
-
         _registerWithChecks(
             msg.sender,
             nodeId,
@@ -949,7 +947,6 @@ contract Ignite is
         );
     }
 
-    event LogAsad();
     /**
      * @notice Store the registration
      * @param  beneficiary The beneficiary of the registration

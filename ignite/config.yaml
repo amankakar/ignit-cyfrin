@@ -40,7 +40,8 @@ stopOnFail: false
 coverage: true
 
 # list of file formats to save coverage reports in; default is all possible formats
-coverageFormats: ["lcov", "html","txt"]
+# coverageFormats: ["lcov", "html","txt"]
+coverageFormats: ["txt"]
 
 #directory to save the corpus; by default is disabled
 corpusDir: "test/invariants/_corpus/echidna/default/_data/corpus"
