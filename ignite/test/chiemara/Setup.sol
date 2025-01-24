@@ -29,6 +29,7 @@ abstract contract Setup is BaseSetup {
     uint256 totalEthStaked;
     uint256 totalQIStaked;
     uint public qiPriceMultiplier = 10_000;
+    address public constant FEE_RECIPIENT = 0xaAaAaAaaAaAaAaaAaAAAAAAAAaaaAaAaAaaAaaAa;
 
     uint256[] public durations;
     uint public constant VALIDATION_DURATION_TWO_WEEKS = 86400 * 7 * 2;
@@ -62,6 +63,10 @@ abstract contract Setup is BaseSetup {
     uint[] public failRegistrationIndices;
     uint[] public successRegistrationIndices;
     bool releaseLockTokenFailedCalled;
+    bool releaseLockTokenSuccessCalled;
+
+    uint public avaxFee;
+    uint public tokenFee;
 
     function boundValue(
         uint256 value,

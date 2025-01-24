@@ -985,7 +985,7 @@ contract Ignite is
                 validationDuration,
                 feePaid,
                 TokenDepositDetails(
-                    msg.value,
+                    msg.value, // avax amount
                     token,
                     tokenAmount
                 ),
