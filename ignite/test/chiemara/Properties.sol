@@ -8,7 +8,11 @@ import {IgniteStorage} from "../../src/IgniteStorage.sol";
 event LogAsad(uint256);
 
 abstract contract Properties is BeforeAfter, Asserts {
-   function echidna_check_eth_balance() external  view returns(bool){
+   function echidna_check_eth_balance() external   returns(bool){
+            emit LogAsad(totalEthStaked);
+            emit LogAsad(address(ignite).balance);
+
+
         return address(ignite).balance == totalEthStaked;
     }
    function echidna_check_minimum_eth_balance() external  view returns(bool){
@@ -36,10 +40,15 @@ abstract contract Properties is BeforeAfter, Asserts {
         }
         return true;
     }
-    // function echidna_check_success_slashed() external view returns(bool){
-    //     if(releaseLockTokenSlashedCalled){
-    //         return address(SLASHED_TOKEN_RECIPIENT).balance == avaxSlash && qi.balanceOf(SLASHED_TOKEN_RECIPIENT) == tokenSlash;
-    //     }
-    //     return true;
-    // }
+    function echidna_check_success_slashed() external  returns(bool){
+        
+        if(releaseLockTokenSlashedCalled){
+         emit LogAsad(tokenSlash);
+        emit LogAsad(avaxSlash);
+        emit LogAsad(address(SLASHED_TOKEN_RECIPIENT).balance);
+        emit LogAsad(qi.balanceOf(SLASHED_TOKEN_RECIPIENT));
+            return address(SLASHED_TOKEN_RECIPIENT).balance == avaxSlash && qi.balanceOf(SLASHED_TOKEN_RECIPIENT) == tokenSlash;
+        }
+        return true;
+    }
 }

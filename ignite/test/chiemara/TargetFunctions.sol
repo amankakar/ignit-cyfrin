@@ -212,7 +212,7 @@ abstract contract TargetFunctions is BaseTargetFunctions, Properties {
                     true // bool failed
                 );
             } else {
-                if (tokenDeposits.avaxAmount > 0) {
+                if (tokenDeposits.avaxAmount > 0 && tokenDeposits.tokenAmount > 0) {
                     failRegistrationIndices.push(registrationIndex);
                 }
                 totalEthStaked += tokenDeposits.avaxAmount;
@@ -330,11 +330,12 @@ abstract contract TargetFunctions is BaseTargetFunctions, Properties {
                     nodeId,
                     false // bool failed
                 );
+                totalEthStaked += msgValue;
 
 
             if (qiSlashPercentage > 0) {
                 uint qiSlashAmount = tokenDeposits.tokenAmount * qiSlashPercentage / 10_000;
-
+                tokenSlash += qiSlashAmount;
                 totalQIStaked -= qiSlashAmount;
             }
 
@@ -342,7 +343,7 @@ abstract contract TargetFunctions is BaseTargetFunctions, Properties {
                 uint avaxSlashAmount = tokenDeposits.avaxAmount * avaxSlashPercentage / 10_000;
 
                 gostMinimumContractBalance += msgValue - avaxSlashAmount;
-
+                   avaxSlash +=avaxSlashAmount;
                 totalEthStaked -= avaxSlashAmount;
             } else {
                 gostMinimumContractBalance += msgValue;

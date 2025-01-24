@@ -12,13 +12,13 @@ codeSize: 294576
 # balanceContract: 0xffffffffffffffffffffffsffffffffffffffffffffffffff
 
 #testLimit is the number of test sequences to run
-testLimit: 110000
+testLimit: 90000
 
 #seqLen defines how many transactions are in a test sequence
 seqLen: 300
 
 #shrinkLimit determines how much effort is spent shrinking failing sequences
-shrinkLimit: 2500
+shrinkLimit: 10000
 
 #propMaxGas defines gas cost at which a property fails
 propMaxGas: 1000000000

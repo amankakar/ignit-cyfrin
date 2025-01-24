@@ -144,6 +144,7 @@ contract Ignite is
         maximumAvaxDeposit = _maximumAvaxDeposit;
 
         qiSlashPercentage = 5_000;
+        //@audit missing avaxSlashPercentage initialization 
         maximumSubsidisationAmount = 50_000e18;
 
         qiPriceMultiplier = 10_000;
@@ -601,8 +602,8 @@ contract Ignite is
 
                 // Non-tokenised registrations do not count towards the subsidisation cap
                 // nor can have a non-zero AVAX deposit and should be deleted immediately.
-                if (registration.tokenDeposits.tokenAmount == 0) {
-                    _deleteRegistration(nodeId);
+                if (registration.tokenDeposits.tokenAmount == 0) {  // @audit if msg.value is greater than 0 and tokenAmount is zero that the withdrawal is not toggled
+                    _deleteRegistration(nodeId);                  // @audit  registration.tokenDeposits.tokenAmount == 0  this should be registration.tokenDeposits.avaxAmount == 0 
 
                     return;
                 } else {
@@ -1080,4 +1081,7 @@ contract Ignite is
 
         revert("Invalid validation duration");
     }
+
+
+    
 }

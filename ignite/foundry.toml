@@ -10,7 +10,7 @@ remappings = [
     "@openzeppelin/=node_modules/@openzeppelin/",
     "@chimera/=node_modules/chimera/src",
     "ds-test/=node_modules/chimera/lib/forge-std/lib/ds-test/",
-    "forge-std/=node_modules/chimera/lib/forge-std/",
+    "forge-std/=lib/forge-std/src",
     "hardhat/=node_modules/hardhat/",
     "solmate/=node_modules/solmate/",
 ]
