@@ -23,9 +23,9 @@ abstract contract TargetFunctions is BaseTargetFunctions, Properties {
             durations.length
         ); // 2-12 weeks
         uint validationDuration = durations[validationDurationIndex];
-        uint registrationFee = ignite.getRegistrationFee(validationDuration);
+        // uint registrationFee = ignite.getRegistrationFee(validationDuration);
 
-        gostMinimumContractBalance += registrationFee;
+        // gostMinimumContractBalance += registrationFee;
 
         address user = users[userIndex];
         uint amount = amountArr[amountIndex];
@@ -43,6 +43,7 @@ abstract contract TargetFunctions is BaseTargetFunctions, Properties {
             validationDuration
         );
         nodeIds.push(string(abi.encodePacked("NodeID-", nodeId)));
+        isRegisteredCalled = true;
     }
     function register_with_erc20_fee(
         uint256 userIndex,
@@ -75,6 +76,7 @@ abstract contract TargetFunctions is BaseTargetFunctions, Properties {
             validationDuration
         );
         nodeIds.push(string(abi.encodePacked("NodeID-", nodeId)));
+        isRegisteredCalled = true;
     }
 
     function register_with_prevalidated_qiStake(
@@ -115,6 +117,7 @@ abstract contract TargetFunctions is BaseTargetFunctions, Properties {
             qiAmount
         );
         nodeIds.push(string(abi.encodePacked("NodeID-", nodeId)));
+        isRegisteredCalled = true;
     }
     function register_without_collateral(
         uint256 userIndex,
@@ -159,6 +162,7 @@ abstract contract TargetFunctions is BaseTargetFunctions, Properties {
 
         address user = users[userIndex];
         uint amount = ignite.getRegistrationFee(validationDuration);
+        gostMinimumContractBalance += amount;
         totalEthStaked += amount;
 
         vm.prank(user);
@@ -168,6 +172,7 @@ abstract contract TargetFunctions is BaseTargetFunctions, Properties {
             validationDuration
         );
         nodeIds.push(string(abi.encodePacked("NodeID-", nodeId)));
+        isRegisteredCalled = true;
     }
 
     function withdraw_eth(uint amount) public {
@@ -224,6 +229,7 @@ abstract contract TargetFunctions is BaseTargetFunctions, Properties {
     }
 
     function release_locked_tokens_success(uint256 nodeIdIndex) public {
+        if(!isRegisteredCalled) return;
         nodeIdIndex = boundValue(nodeIdIndex, 0, nodeIds.length);
         string memory nodeId = nodeIds[nodeIdIndex];
         uint registrationIndex = ignite.registrationIndicesByNodeId(nodeId);
@@ -272,6 +278,7 @@ abstract contract TargetFunctions is BaseTargetFunctions, Properties {
 
                 totalQIStaked -= fee;
 
+                tokenFee += fee;
 
                   vm.prank(admin);
                 ignite.releaseLockedTokens{value: 0}(
@@ -280,7 +287,7 @@ abstract contract TargetFunctions is BaseTargetFunctions, Properties {
                 );
             }else {
                 uint msgValue = tokenDeposits.avaxAmount+10;
-
+                totalEthStaked += msgValue;
             gostMinimumContractBalance += msgValue;
                 vm.prank(admin);
                 ignite.releaseLockedTokens{value: msgValue}(
@@ -312,11 +319,11 @@ abstract contract TargetFunctions is BaseTargetFunctions, Properties {
             bool withdrawable
         ) = ignite.registrations(registrationIndex);
 
+                uint msgValue = tokenDeposits.avaxAmount;
         if(!withdrawable){
-        if (!feePaid) {
+        if (!feePaid && msgValue != 0) {
 
        
-                uint msgValue = tokenDeposits.avaxAmount;
 
                 vm.prank(admin);
                 ignite.releaseLockedTokens{value: msgValue}(

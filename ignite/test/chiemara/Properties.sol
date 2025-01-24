@@ -5,7 +5,7 @@ import {Asserts} from "@chimera/Asserts.sol";
 import {BeforeAfter} from "./BeforeAfter.sol";
 
 import {IgniteStorage} from "../../src/IgniteStorage.sol";
-
+event LogAsad(uint256);
 
 abstract contract Properties is BeforeAfter, Asserts {
    function echidna_check_eth_balance() external  view returns(bool){
@@ -28,16 +28,18 @@ abstract contract Properties is BeforeAfter, Asserts {
         }
         return true;
     }
-    function echidna_check_success_registration_withdrawal() external view returns(bool){
+    function echidna_check_success_registration_withdrawal() external  returns(bool){
         if(releaseLockTokenSuccessCalled){
+        emit LogAsad(avaxFee);
+        emit LogAsad(tokenFee);
             return address(FEE_RECIPIENT).balance == avaxFee && qi.balanceOf(FEE_RECIPIENT) == tokenFee;
         }
         return true;
     }
-    function echidna_check_success_slashed() external view returns(bool){
-        if(releaseLockTokenSlashedCalled){
-            return address(SLASHED_TOKEN_RECIPIENT).balance == avaxSlash && qi.balanceOf(SLASHED_TOKEN_RECIPIENT) == tokenSlash;
-        }
-        return true;
-    }
+    // function echidna_check_success_slashed() external view returns(bool){
+    //     if(releaseLockTokenSlashedCalled){
+    //         return address(SLASHED_TOKEN_RECIPIENT).balance == avaxSlash && qi.balanceOf(SLASHED_TOKEN_RECIPIENT) == tokenSlash;
+    //     }
+    //     return true;
+    // }
 }

@@ -72,7 +72,7 @@ abstract contract Setup is BaseSetup {
     uint public avaxSlash;
     uint public tokenFee;
     uint public tokenSlash;
-
+    bool public isRegisteredCalled;
     function boundValue(
         uint256 value,
         uint256 min,
