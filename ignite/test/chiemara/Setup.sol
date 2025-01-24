@@ -62,7 +62,7 @@ abstract contract Setup is BaseSetup {
     ];
 
     string[] public nodeIds;
-    uint[] public failRegistrationIndices;
+    string[] public failRegistrationIndices;
     uint[] public successRegistrationIndices;
     bool public releaseLockTokenFailedCalled;
     bool public releaseLockTokenSuccessCalled;

@@ -21,10 +21,12 @@ abstract contract Properties is BeforeAfter, Asserts {
    function echidna_check_qi_balance() external view returns(bool){
         return  qi.balanceOf(address(ignite)) ==  totalQIStaked;
     }
-   function echidna_check_fail_registration_withdrawal() external view returns(bool){
+         function echidna_check_fail_registration_withdrawal() public view returns(bool){
         if(releaseLockTokenFailedCalled){
             for(uint i = 0; i < failRegistrationIndices.length; i++){
-                (,,,,,,,,,bool withdrawable) = ignite.registrations(failRegistrationIndices[i]);
+                uint registrationIndex = ignite.registrationIndicesByNodeId(failRegistrationIndices[i]);
+                (,,,,,,,,,bool withdrawable) = ignite.
+                registrations(registrationIndex);
                     if(!withdrawable){
                         return false;
                     }   

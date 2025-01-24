@@ -213,7 +213,7 @@ abstract contract TargetFunctions is BaseTargetFunctions, Properties {
                 );
             } else {
                 if (tokenDeposits.avaxAmount > 0 && tokenDeposits.tokenAmount > 0) {
-                    failRegistrationIndices.push(registrationIndex);
+                    failRegistrationIndices.push(nodeId);
                 }
                 totalEthStaked += tokenDeposits.avaxAmount;
                 gostMinimumContractBalance += tokenDeposits.avaxAmount;

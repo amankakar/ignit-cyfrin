@@ -6,7 +6,7 @@ import {PriceFeed} from "./contracts/PriceFeed.sol";
 import {StakedAvax} from "./contracts/StakedAvax.sol";
 import {FaucetToken} from "./contracts/FaucetToken.sol";
 import {Test} from "forge-std/Test.sol";
-import  "forge-std/Console.sol";
+import  "forge-std/console.sol";
 import {IgniteStorage} from "../src/IgniteStorage.sol";
 
 contract MyTest is Test {
@@ -63,7 +63,7 @@ contract MyTest is Test {
     ];
 
     string[] public nodeIds;
-    uint[] public failRegistrationIndices;
+    string[] public failRegistrationIndices;
     uint[] public successRegistrationIndices;
     bool public releaseLockTokenFailedCalled;
     bool public releaseLockTokenSuccessCalled;
@@ -342,8 +342,9 @@ contract MyTest is Test {
             } else {
                 if (tokenDeposits.avaxAmount > 0 && tokenDeposits.tokenAmount > 0){
 
-                    failRegistrationIndices.push(registrationIndex);
+                    failRegistrationIndices.push(nodeId);
                     console.log("failRegistrationIndices.length",failRegistrationIndices.length);
+                    console.log("index pushed " , registrationIndex);
 
                 }
                 totalEthStaked += tokenDeposits.avaxAmount;
@@ -499,9 +500,11 @@ assertEq(address(SLASHED_TOKEN_RECIPIENT).balance ,avaxSlash);
       function echidna_check_fail_registration_withdrawal() public view returns(bool){
         if(releaseLockTokenFailedCalled){
             for(uint i = 0; i < failRegistrationIndices.length; i++){
-                console.log("-------failRegistrationIndices[i]",failRegistrationIndices[i]);
+                uint registrationIndex = ignite.registrationIndicesByNodeId(failRegistrationIndices[i]);
+
+                // console.log("-------failRegistrationIndices[i]",failRegistrationIndices[i]);
                 (,,,,,,,,,bool withdrawable) = ignite.
-                registrations(failRegistrationIndices[i]);
+                registrations(registrationIndex);
                     if(!withdrawable){
                         return false;
                     }   
