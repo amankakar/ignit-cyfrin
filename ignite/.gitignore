@@ -114,5 +114,5 @@ contracts/coverage.json
 .openzeppelin/
 
 yarn.lock
-corpus
+
 crytic-export
