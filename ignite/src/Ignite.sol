@@ -969,11 +969,11 @@ contract Ignite is
         uint tokenAmount,
         bool isEligibleForQiRewards
     ) internal whenNotPaused {
-        uint registrationIndex = registrationIndicesByNodeId[nodeId];
-        require(
-            registrationIndex == 0 && bytes(nodeId).length != 0,
-            "Node already registered"
-        );
+        // uint registrationIndex = registrationIndicesByNodeId[nodeId];
+        // require(
+        //     registrationIndex == 0 && bytes(nodeId).length != 0,
+        //     "Node already registered"
+        // );
 
         require(blsProofOfPossession.length == 144);
 

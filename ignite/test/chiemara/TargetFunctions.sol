@@ -23,6 +23,9 @@ abstract contract TargetFunctions is BaseTargetFunctions, Properties {
             durations.length
         ); // 2-12 weeks
         uint validationDuration = durations[validationDurationIndex];
+        uint registrationFee = ignite.getRegistrationFee(validationDuration);
+
+        gostMinimumContractBalance += registrationFee;
 
         address user = users[userIndex];
         uint amount = amountArr[amountIndex];
@@ -122,11 +125,13 @@ abstract contract TargetFunctions is BaseTargetFunctions, Properties {
         validationDurationIndex = boundValue(
             validationDurationIndex,
             0,
-            durations.length
+            durations.length+1
         );
-        uint validationDuration = durations[validationDurationIndex];
+        uint256[5] memory _durations = [durations[0],durations[1],durations[2],durations[3],86400 * 365];
+        uint validationDuration = _durations[validationDurationIndex];
 
         address user = users[userIndex];
+
         vm.prank(admin);
         ignite.grantRole(keccak256("ROLE_REGISTER_WITHOUT_COLLATERAL"), user);
 
@@ -206,6 +211,8 @@ abstract contract TargetFunctions is BaseTargetFunctions, Properties {
                     failRegistrationIndices.push(registrationIndex);
                 }
                 totalEthStaked += tokenDeposits.avaxAmount;
+                gostMinimumContractBalance += tokenDeposits.avaxAmount;
+
                 vm.prank(admin);
                 ignite.releaseLockedTokens{value: tokenDeposits.avaxAmount}(
                     nodeId,
@@ -230,10 +237,10 @@ abstract contract TargetFunctions is BaseTargetFunctions, Properties {
             ,
             ,
             ,
-
+            bool withdrawable
         ) = ignite.registrations(registrationIndex);
 
-        // if(!withdrawable){
+        if(!withdrawable){
         if (feePaid) {
             if (tokenDeposits.avaxAmount > 0) {
                 successRegistrationIndices.push(registrationIndex);
@@ -244,6 +251,8 @@ abstract contract TargetFunctions is BaseTargetFunctions, Properties {
                     false // bool failed
                 );
                 avaxFee += tokenDeposits.avaxAmount;
+                gostMinimumContractBalance -= tokenDeposits.avaxAmount;
+
             } else {
 
 
@@ -256,8 +265,85 @@ abstract contract TargetFunctions is BaseTargetFunctions, Properties {
                 );
                 tokenFee += tokenDeposits.tokenAmount;
             }
+        }else{
+            if (ignite.qiRewardEligibilityByNodeId(nodeId)) {
+
+            uint fee = tokenDeposits.tokenAmount / 201;
+
+                totalQIStaked -= fee;
+
+
+                  vm.prank(admin);
+                ignite.releaseLockedTokens{value: 0}(
+                    nodeId,
+                    false // bool failed
+                );
+            }else {
+                uint msgValue = tokenDeposits.avaxAmount+10;
+
+            gostMinimumContractBalance += msgValue;
+                vm.prank(admin);
+                ignite.releaseLockedTokens{value: msgValue}(
+                    nodeId,
+                    false // bool failed
+                );
+            }
         }
-        // }
+        }
         releaseLockTokenSuccessCalled = true;
+    }
+
+
+
+     function release_locked_tokens_slash(uint256 nodeIdIndex) public {
+        nodeIdIndex = boundValue(nodeIdIndex, 0, nodeIds.length);
+        string memory nodeId = nodeIds[nodeIdIndex];
+        uint registrationIndex = ignite.registrationIndicesByNodeId(nodeId);
+        (
+            ,
+            ,
+            ,
+            bool feePaid,
+            IgniteStorage.TokenDepositDetails memory tokenDeposits,
+            ,
+            uint qiSlashPercentage,
+            uint avaxSlashPercentage,
+            ,
+            bool withdrawable
+        ) = ignite.registrations(registrationIndex);
+
+        if(!withdrawable){
+        if (!feePaid) {
+
+       
+                uint msgValue = tokenDeposits.avaxAmount;
+
+                vm.prank(admin);
+                ignite.releaseLockedTokens{value: msgValue}(
+                    nodeId,
+                    false // bool failed
+                );
+
+
+            if (qiSlashPercentage > 0) {
+                uint qiSlashAmount = tokenDeposits.tokenAmount * qiSlashPercentage / 10_000;
+
+                totalQIStaked -= qiSlashAmount;
+            }
+
+            if (avaxSlashPercentage > 0) {
+                uint avaxSlashAmount = tokenDeposits.avaxAmount * avaxSlashPercentage / 10_000;
+
+                gostMinimumContractBalance += msgValue - avaxSlashAmount;
+
+                totalEthStaked -= avaxSlashAmount;
+            } else {
+                gostMinimumContractBalance += msgValue;
+            }
+
+
+        }
+        }
+        releaseLockTokenSlashedCalled = true;
     }
 }
