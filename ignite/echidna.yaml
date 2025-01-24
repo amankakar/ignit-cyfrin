@@ -18,7 +18,7 @@ testLimit: 110000
 seqLen: 300
 
 #shrinkLimit determines how much effort is spent shrinking failing sequences
-shrinkLimit: 2500
+shrinkLimit: 100
 
 #propMaxGas defines gas cost at which a property fails
 propMaxGas: 1000000000

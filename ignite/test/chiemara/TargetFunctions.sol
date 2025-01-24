@@ -44,6 +44,7 @@ abstract contract TargetFunctions is BaseTargetFunctions, Properties {
         );
         nodeIds.push(string(abi.encodePacked("NodeID-", nodeId)));
     }
+
     function register_with_erc20_fee(
         uint256 userIndex,
         uint256 nodeId,
@@ -182,6 +183,7 @@ abstract contract TargetFunctions is BaseTargetFunctions, Properties {
         vm.prank(admin);
         ignite.withdraw(amount);
     }
+
     function release_locked_tokens_failed(uint256 nodeIdIndex) public {
         nodeIdIndex = boundValue(nodeIdIndex, 0, nodeIds.length);
         string memory nodeId = nodeIds[nodeIdIndex];
@@ -209,6 +211,7 @@ abstract contract TargetFunctions is BaseTargetFunctions, Properties {
             } else {
                 if (tokenDeposits.avaxAmount > 0) {
                     failRegistrationIndices.push(registrationIndex);
+                    nodeIdsFail.push(nodeId);
                 }
                 totalEthStaked += tokenDeposits.avaxAmount;
                 gostMinimumContractBalance += tokenDeposits.avaxAmount;
@@ -222,7 +225,6 @@ abstract contract TargetFunctions is BaseTargetFunctions, Properties {
         }
         releaseLockTokenFailedCalled = true;
     }
-
     function release_locked_tokens_success(uint256 nodeIdIndex) public {
         nodeIdIndex = boundValue(nodeIdIndex, 0, nodeIds.length);
         string memory nodeId = nodeIds[nodeIdIndex];
@@ -254,8 +256,6 @@ abstract contract TargetFunctions is BaseTargetFunctions, Properties {
                 gostMinimumContractBalance -= tokenDeposits.avaxAmount;
 
             } else {
-
-
                 successRegistrationIndices.push(registrationIndex);
                 totalQIStaked -= tokenDeposits.tokenAmount;
                 vm.prank(admin);

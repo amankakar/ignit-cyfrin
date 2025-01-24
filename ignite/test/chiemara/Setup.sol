@@ -7,6 +7,7 @@ import {Ignite} from "../../src/Ignite.sol";
 import {PriceFeed} from "../contracts/PriceFeed.sol";
 import {StakedAvax} from "../contracts/StakedAvax.sol";
 import {FaucetToken} from "../contracts/FaucetToken.sol";
+import {IgniteStorage} from "../../src/IgniteStorage.sol";
 
 import {vm} from "@chimera/Hevm.sol";
 
@@ -62,6 +63,7 @@ abstract contract Setup is BaseSetup {
     ];
 
     string[] public nodeIds;
+    string[] public nodeIdsFail;
     uint[] public failRegistrationIndices;
     uint[] public successRegistrationIndices;
     bool public releaseLockTokenFailedCalled;
@@ -113,6 +115,7 @@ abstract contract Setup is BaseSetup {
             vm.prank(users[i]);
             qi.approve(address(ignite), type(uint256).max);
         }
+        vm.deal(admin, 10000000000000000 ether);
         vm.prank(admin);
         ignite.grantRole(keccak256("ROLE_WITHDRAW"), admin);
         vm.prank(admin);
@@ -126,6 +129,11 @@ abstract contract Setup is BaseSetup {
         durations.push(VALIDATION_DURATION_TWELVE_WEEKS);
         // register_With_Erc20_Fee(0,45,0);
         // echidna_check_qi_balance();
+        // register_with_stake(0, 2, 12, 1);
+        // release_locked_tokens_failed(1);
+        // redeem_after_expiry(0);
         // revert();
     }
+
+    
 }

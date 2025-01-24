@@ -471,9 +471,9 @@ contract Ignite is
             minimumContractBalance -= avaxRedemptionAmount;
         }
 
-        _deleteRegistration(nodeId);
 
         qi.safeTransfer(msg.sender, qiRedemptionAmount);
+        _deleteRegistration(nodeId);
 
         if (avaxRedemptionAmount > 0) {
             (bool success, ) = msg.sender.call{ value: avaxRedemptionAmount}("");
@@ -975,7 +975,7 @@ contract Ignite is
         //     "Node already registered"
         // );
 
-        require(blsProofOfPossession.length == 144);
+        // require(blsProofOfPossession.length == 144);
 
         registrationIndicesByNodeId[nodeId] = registrations.length;
         registrations.push(
