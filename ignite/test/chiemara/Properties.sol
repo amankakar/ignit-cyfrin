@@ -16,13 +16,16 @@ abstract contract Properties is BeforeAfter, Asserts {
         return address(ignite).balance == totalEthStaked;
     }
 
-function echidna_total_sub_gost()external  view returns(bool){
-    return gostTotalSubsidisedAmount == ignite.totalSubsidisedAmount();
-}
 
    function echidna_check_minimum_eth_balance() external  view returns(bool){
         return ignite.minimumContractBalance() == gostMinimumContractBalance;
     }
+    function echidna_check_total_subsidised_gost()external   returns(bool){
+                    emit LogAsad(gostTotalSubsidisedAmount);
+
+    return gostTotalSubsidisedAmount == ignite.totalSubsidisedAmount();
+}
+
    function echidna_check_total_subsidised() external  view returns(bool){
         return ignite.totalSubsidisedAmount() <= ignite.maximumSubsidisationAmount();
     }
