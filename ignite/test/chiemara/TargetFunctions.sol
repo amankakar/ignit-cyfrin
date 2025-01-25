@@ -9,10 +9,20 @@ import {IgniteStorage} from "../../src/IgniteStorage.sol";
 event LogUint(uint);
 
 abstract contract TargetFunctions is BaseTargetFunctions, Properties {
+
+    function _registerWithChecks(bool feePaid,uint msgValue) internal {
+          uint subsidisationAmount;
+        if (feePaid) {
+            subsidisationAmount = 2000e18;
+        } else {
+            subsidisationAmount = 2000e18 - msgValue;
+        }
+        gostTotalSubsidisedAmount += subsidisationAmount;
+    }
+
     function register_with_stake(
         uint256 userIndex,
         uint256 amountIndex,
-        uint256 nodeId,
         uint validationDurationIndex
     ) public {
         amountIndex = boundValue(amountIndex, 0, amountArr.length);
@@ -23,9 +33,6 @@ abstract contract TargetFunctions is BaseTargetFunctions, Properties {
             durations.length
         ); // 2-12 weeks
         uint validationDuration = durations[validationDurationIndex];
-        // uint registrationFee = ignite.getRegistrationFee(validationDuration);
-
-        // gostMinimumContractBalance += registrationFee;
 
         address user = users[userIndex];
         uint amount = amountArr[amountIndex];
@@ -36,18 +43,27 @@ abstract contract TargetFunctions is BaseTargetFunctions, Properties {
             10;
         totalQIStaked += qiAmount;
         totalEthStaked += amount;
+
+        string memory nodeIdStr = string(
+            abi.encodePacked(
+                "NodeID-",
+                block.prevrandao,
+                block.number,
+                block.timestamp
+            )
+        );
         vm.prank(user);
         ignite.registerWithStake{value: amount}(
-            string(abi.encodePacked("NodeID-", nodeId)),
+            nodeIdStr,
             blsPoP,
             validationDuration
         );
-        nodeIds.push(string(abi.encodePacked("NodeID-", nodeId)));
+        nodeIds.push(nodeIdStr);
         isRegisteredCalled = true;
+        _registerWithChecks(false,amount);
     }
     function register_with_erc20_fee(
         uint256 userIndex,
-        uint256 nodeId,
         uint validationDurationIndex
     ) public {
         userIndex = boundValue(userIndex, 0, users.length);
@@ -68,20 +84,30 @@ abstract contract TargetFunctions is BaseTargetFunctions, Properties {
             10 ** (18 - qi.decimals());
         uint amount = (tokenAmount * qiPriceMultiplier) / 10_000;
         totalQIStaked += amount;
+
+        string memory nodeIdStr = string(
+            abi.encodePacked(
+                "NodeID-",
+                block.prevrandao,
+                block.number,
+                block.timestamp
+            )
+        );
+
         vm.prank(user);
         ignite.registerWithErc20Fee(
             address(qi),
-            string(abi.encodePacked("NodeID-", nodeId)),
+            string(abi.encodePacked("NodeID-", nodeIdStr)),
             blsPoP,
             validationDuration
         );
-        nodeIds.push(string(abi.encodePacked("NodeID-", nodeId)));
+        nodeIds.push(string(abi.encodePacked("NodeID-", nodeIdStr)));
         isRegisteredCalled = true;
+        _registerWithChecks(true,0);
     }
 
     function register_with_prevalidated_qiStake(
         uint256 userIndex,
-        uint256 nodeId,
         uint validationDurationIndex
     ) public {
         userIndex = boundValue(userIndex, 0, users.length);
@@ -108,29 +134,45 @@ abstract contract TargetFunctions is BaseTargetFunctions, Properties {
         uint qiAmount = (expectedQiAmount * 9) / 10;
 
         totalQIStaked += qiAmount;
+
+        string memory nodeIdStr = string(
+            abi.encodePacked(
+                "NodeID-",
+                block.prevrandao,
+                block.number,
+                block.timestamp
+            )
+        );
+
         vm.prank(user);
         ignite.registerWithPrevalidatedQiStake(
             address(user),
-            string(abi.encodePacked("NodeID-", nodeId)),
+            string(abi.encodePacked("NodeID-", nodeIdStr)),
             blsPoP,
             validationDuration,
             qiAmount
         );
-        nodeIds.push(string(abi.encodePacked("NodeID-", nodeId)));
+        nodeIds.push(string(abi.encodePacked("NodeID-", nodeIdStr)));
         isRegisteredCalled = true;
+        _registerWithChecks(false,0);
     }
     function register_without_collateral(
         uint256 userIndex,
-        uint256 nodeId,
         uint validationDurationIndex
     ) public {
         userIndex = boundValue(userIndex, 0, users.length);
         validationDurationIndex = boundValue(
             validationDurationIndex,
             0,
-            durations.length+1
+            durations.length + 1
         );
-        uint256[5] memory _durations = [durations[0],durations[1],durations[2],durations[3],86400 * 365];
+        uint256[5] memory _durations = [
+            durations[0],
+            durations[1],
+            durations[2],
+            durations[3],
+            86400 * 365
+        ];
         uint validationDuration = _durations[validationDurationIndex];
 
         address user = users[userIndex];
@@ -138,19 +180,27 @@ abstract contract TargetFunctions is BaseTargetFunctions, Properties {
         vm.prank(admin);
         ignite.grantRole(keccak256("ROLE_REGISTER_WITHOUT_COLLATERAL"), user);
 
+        string memory nodeIdStr = string(
+            abi.encodePacked(
+                "NodeID-",
+                block.prevrandao,
+                block.number,
+                block.timestamp
+            )
+        );
+
         vm.prank(user);
         ignite.registerWithoutCollateral(
-            string(abi.encodePacked("NodeID-", nodeId)),
+            string(abi.encodePacked("NodeID-", nodeIdStr)),
             blsPoP,
             validationDuration
         );
-        nodeIds.push(string(abi.encodePacked("NodeID-", nodeId)));
+        nodeIds.push(string(abi.encodePacked("NodeID-", nodeIdStr)));
     }
 
     function register_with_avax_fee(
         uint256 userIndex,
-        uint validationDurationIndex,
-        uint256 nodeId
+        uint validationDurationIndex
     ) public {
         userIndex = boundValue(userIndex, 0, users.length);
         validationDurationIndex = boundValue(
@@ -165,14 +215,24 @@ abstract contract TargetFunctions is BaseTargetFunctions, Properties {
         gostMinimumContractBalance += amount;
         totalEthStaked += amount;
 
+        string memory nodeIdStr = string(
+            abi.encodePacked(
+                "NodeID-",
+                block.prevrandao,
+                block.number,
+                block.timestamp
+            )
+        );
+
         vm.prank(user);
         ignite.registerWithAvaxFee{value: amount}(
-            string(abi.encodePacked("NodeID-", nodeId)),
+            string(abi.encodePacked("NodeID-", nodeIdStr)),
             blsPoP,
             validationDuration
         );
-        nodeIds.push(string(abi.encodePacked("NodeID-", nodeId)));
+        nodeIds.push(string(abi.encodePacked("NodeID-", nodeIdStr)));
         isRegisteredCalled = true;
+        _registerWithChecks(true,amount);
     }
 
     function withdraw_eth(uint amount) public {
@@ -206,15 +266,24 @@ abstract contract TargetFunctions is BaseTargetFunctions, Properties {
 
         if (!withdrawable) {
             if (feePaid) {
+                gostTotalSubsidisedAmount -= 2000e18;
+
                 vm.prank(admin);
                 ignite.releaseLockedTokens{value: 0}(
                     nodeId,
                     true // bool failed
                 );
             } else {
-                if (tokenDeposits.avaxAmount > 0 && tokenDeposits.tokenAmount > 0) {
+                if (
+                    tokenDeposits.avaxAmount > 0 &&
+                    tokenDeposits.tokenAmount > 0
+                ) {
                     failRegistrationIndices.push(nodeId);
+
+                    gostTotalSubsidisedAmount -= 2000e18 - tokenDeposits.avaxAmount;
                 }
+
+                
                 totalEthStaked += tokenDeposits.avaxAmount;
                 gostMinimumContractBalance += tokenDeposits.avaxAmount;
 
@@ -229,7 +298,7 @@ abstract contract TargetFunctions is BaseTargetFunctions, Properties {
     }
 
     function release_locked_tokens_success(uint256 nodeIdIndex) public {
-        if(!isRegisteredCalled) return;
+        if (!isRegisteredCalled) return;
         nodeIdIndex = boundValue(nodeIdIndex, 0, nodeIds.length);
         string memory nodeId = nodeIds[nodeIdIndex];
         uint registrationIndex = ignite.registrationIndicesByNodeId(nodeId);
@@ -246,63 +315,62 @@ abstract contract TargetFunctions is BaseTargetFunctions, Properties {
             bool withdrawable
         ) = ignite.registrations(registrationIndex);
 
-        if(!withdrawable){
-        if (feePaid) {
-            if (tokenDeposits.avaxAmount > 0) {
-                successRegistrationIndices.push(registrationIndex);
-                totalEthStaked -= tokenDeposits.avaxAmount;
-                vm.prank(admin);
-                ignite.releaseLockedTokens{value: 0}(
-                    nodeId,
-                    false // bool failed
-                );
-                avaxFee += tokenDeposits.avaxAmount;
-                gostMinimumContractBalance -= tokenDeposits.avaxAmount;
+        if (!withdrawable) {
+            if (feePaid) {
 
+                            gostTotalSubsidisedAmount -= 2000e18;
+
+                if (tokenDeposits.avaxAmount > 0) {
+                    successRegistrationIndices.push(registrationIndex);
+                    totalEthStaked -= tokenDeposits.avaxAmount;
+                    vm.prank(admin);
+                    ignite.releaseLockedTokens{value: 0}(
+                        nodeId,
+                        false // bool failed
+                    );
+                    avaxFee += tokenDeposits.avaxAmount;
+                    gostMinimumContractBalance -= tokenDeposits.avaxAmount;
+                } else {
+                    successRegistrationIndices.push(registrationIndex);
+                    totalQIStaked -= tokenDeposits.tokenAmount;
+                    vm.prank(admin);
+                    ignite.releaseLockedTokens{value: 0}(
+                        nodeId,
+                        false // bool failed
+                    );
+                    tokenFee += tokenDeposits.tokenAmount;
+                }
             } else {
+                gostTotalSubsidisedAmount -= 2000e18 - tokenDeposits.avaxAmount;
 
+                if (ignite.qiRewardEligibilityByNodeId(nodeId)) {
+                    uint fee = tokenDeposits.tokenAmount / 201;
 
-                successRegistrationIndices.push(registrationIndex);
-                totalQIStaked -= tokenDeposits.tokenAmount;
-                vm.prank(admin);
-                ignite.releaseLockedTokens{value: 0}(
-                    nodeId,
-                    false // bool failed
-                );
-                tokenFee += tokenDeposits.tokenAmount;
+                    totalQIStaked -= fee;
+
+                    tokenFee += fee;
+
+                    vm.prank(admin);
+                    ignite.releaseLockedTokens{value: 0}(
+                        nodeId,
+                        false // bool failed
+                    );
+                } else {
+                    uint msgValue = tokenDeposits.avaxAmount + 10;
+                    totalEthStaked += msgValue;
+                    gostMinimumContractBalance += msgValue;
+                    vm.prank(admin);
+                    ignite.releaseLockedTokens{value: msgValue}(
+                        nodeId,
+                        false // bool failed
+                    );
+                }
             }
-        }else{
-            if (ignite.qiRewardEligibilityByNodeId(nodeId)) {
-
-            uint fee = tokenDeposits.tokenAmount / 201;
-
-                totalQIStaked -= fee;
-
-                tokenFee += fee;
-
-                  vm.prank(admin);
-                ignite.releaseLockedTokens{value: 0}(
-                    nodeId,
-                    false // bool failed
-                );
-            }else {
-                uint msgValue = tokenDeposits.avaxAmount+10;
-                totalEthStaked += msgValue;
-            gostMinimumContractBalance += msgValue;
-                vm.prank(admin);
-                ignite.releaseLockedTokens{value: msgValue}(
-                    nodeId,
-                    false // bool failed
-                );
-            }
-        }
         }
         releaseLockTokenSuccessCalled = true;
     }
 
-
-
-     function release_locked_tokens_slash(uint256 nodeIdIndex) public {
+    function release_locked_tokens_slash(uint256 nodeIdIndex) public {
         nodeIdIndex = boundValue(nodeIdIndex, 0, nodeIds.length);
         string memory nodeId = nodeIds[nodeIdIndex];
         uint registrationIndex = ignite.registrationIndicesByNodeId(nodeId);
@@ -319,12 +387,9 @@ abstract contract TargetFunctions is BaseTargetFunctions, Properties {
             bool withdrawable
         ) = ignite.registrations(registrationIndex);
 
-                uint msgValue = tokenDeposits.avaxAmount;
-        if(!withdrawable){
-        if (!feePaid && msgValue != 0) {
-
-       
-
+        uint msgValue = tokenDeposits.avaxAmount;
+        if (!withdrawable) {
+            if (!feePaid && msgValue != 0) {
                 vm.prank(admin);
                 ignite.releaseLockedTokens{value: msgValue}(
                     nodeId,
@@ -332,26 +397,89 @@ abstract contract TargetFunctions is BaseTargetFunctions, Properties {
                 );
                 totalEthStaked += msgValue;
 
+                if (qiSlashPercentage > 0) {
+                    uint qiSlashAmount = (tokenDeposits.tokenAmount *
+                        qiSlashPercentage) / 10_000;
+                    tokenSlash += qiSlashAmount;
+                    totalQIStaked -= qiSlashAmount;
+                }
 
-            if (qiSlashPercentage > 0) {
-                uint qiSlashAmount = tokenDeposits.tokenAmount * qiSlashPercentage / 10_000;
-                tokenSlash += qiSlashAmount;
-                totalQIStaked -= qiSlashAmount;
+                if (avaxSlashPercentage > 0) {
+                    uint avaxSlashAmount = (tokenDeposits.avaxAmount *
+                        avaxSlashPercentage) / 10_000;
+
+                    gostMinimumContractBalance += msgValue - avaxSlashAmount;
+                    avaxSlash += avaxSlashAmount;
+                    totalEthStaked -= avaxSlashAmount;
+                } else {
+                    gostMinimumContractBalance += msgValue;
+                }
             }
-
-            if (avaxSlashPercentage > 0) {
-                uint avaxSlashAmount = tokenDeposits.avaxAmount * avaxSlashPercentage / 10_000;
-
-                gostMinimumContractBalance += msgValue - avaxSlashAmount;
-                   avaxSlash +=avaxSlashAmount;
-                totalEthStaked -= avaxSlashAmount;
-            } else {
-                gostMinimumContractBalance += msgValue;
-            }
-
-
-        }
         }
         releaseLockTokenSlashedCalled = true;
+    }
+
+    function redeem(uint256 nodeIdIndex,uint256 userIndex) public {
+        if(!releaseLockTokenSuccessCalled) return;
+        userIndex = boundValue(userIndex, 0, users.length);
+
+        nodeIdIndex = boundValue(nodeIdIndex, 0, nodeIds.length);
+        string memory nodeId = nodeIds[nodeIdIndex];
+        address user = users[userIndex];
+
+     
+
+
+uint registrationIndex = ignite.registrationIndicesByNodeId(nodeId);
+        (
+            ,
+            ,
+            uint validationDuration,
+            bool feePaid,
+            IgniteStorage.TokenDepositDetails memory tokenDeposits,
+            uint rewardAmount,
+            uint qiSlashPercentage,
+            uint avaxSlashPercentage,
+            bool stashed,
+            bool withdrawable
+        ) = ignite.registrations(registrationIndex);
+
+        if(withdrawable){
+
+        if (tokenDeposits.avaxAmount>0){
+            gostMinimumContractBalance -= tokenDeposits.avaxAmount;
+                totalEthStaked -= tokenDeposits.avaxAmount;
+        }else{
+                totalQIStaked -= tokenDeposits.tokenAmount;
+        }
+        uint avaxRedemptionAmount;
+        uint qiRedemptionAmount;
+        if(stashed){
+            avaxRedemptionAmount = tokenDeposits.avaxAmount - tokenDeposits.avaxAmount * avaxSlashPercentage / 10_000;
+
+    
+            gostMinimumContractBalance -= avaxRedemptionAmount;
+
+        }else{
+            avaxRedemptionAmount = tokenDeposits.avaxAmount + rewardAmount;
+            qiRedemptionAmount = tokenDeposits.tokenAmount;
+
+            if (ignite.qiRewardEligibilityByNodeId(nodeId)) {
+                qiRedemptionAmount += vr.claimRewards(
+                    validationDuration,
+                    tokenDeposits.tokenAmount
+                );
+            }
+
+            gostMinimumContractBalance -= avaxRedemptionAmount;
+        }
+
+
+
+        vm.prank(user);
+        ignite.redeemAfterExpiry(
+            nodeId
+        );
+        }
     }
 }

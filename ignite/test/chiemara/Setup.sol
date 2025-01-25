@@ -4,6 +4,7 @@ pragma solidity ^0.8.0;
 import {BaseSetup} from "@chimera/BaseSetup.sol";
 
 import {Ignite} from "../../src/Ignite.sol";
+import {ValidatorRewarder} from "../../src/ValidatorRewarder.sol";
 import {PriceFeed} from "../contracts/PriceFeed.sol";
 import {StakedAvax} from "../contracts/StakedAvax.sol";
 import {FaucetToken} from "../contracts/FaucetToken.sol";
@@ -73,6 +74,8 @@ abstract contract Setup is BaseSetup {
     uint public tokenFee;
     uint public tokenSlash;
     bool public isRegisteredCalled;
+    ValidatorRewarder vr;
+    uint gostTotalSubsidisedAmount;
     function boundValue(
         uint256 value,
         uint256 min,
@@ -106,6 +109,12 @@ abstract contract Setup is BaseSetup {
             25 ether, // min eth
             1500 ether // max eth
         );
+
+        vr = new ValidatorRewarder();
+        vm.prank(admin);
+        ignite.setValidatorRewarder(address(vr));
+
+
         for (uint i = 0; i < users.length; i++) {
             vm.prank(users[i]);
             qi.mint(10000000000000000 ether); // mint qi

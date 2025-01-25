@@ -525,4 +525,26 @@ release_locked_tokens_failed(122854316689458745106268386115714986334504580033162
    console.log(ignite.getTotalRegistrations());
 assertTrue(echidna_check_fail_registration_withdrawal());
     }
+
+    function _getRegistrationFee(uint validationDuration) internal view returns (uint) {
+        if (validationDuration == VALIDATION_DURATION_TWO_WEEKS) {
+            return 8e18;
+        }
+
+        if (validationDuration == VALIDATION_DURATION_FOUR_WEEKS) {
+            return 15e18;
+        }
+
+        if (validationDuration == VALIDATION_DURATION_EIGHT_WEEKS) {
+            return 28e18;
+        }
+
+        if (validationDuration == VALIDATION_DURATION_TWELVE_WEEKS) {
+            return 40e18;
+        }
+
+    }
+
+
+
 }

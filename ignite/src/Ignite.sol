@@ -225,7 +225,11 @@ contract Ignite is
 
         // QI deposit amount is 10 % (thus, note the divider) of the AVAX value
         // that BENQI subsidises for the validator.
-        uint qiAmount = uint(avaxPrice) * (2000e18 - msg.value) / uint(qiPrice) / 10;
+        // @audit the requirement for staking is that user must provide 500 avax + 150 avax worth of QI tokens.
+        // when i test the following code with 500 avax, it worked fine resulting in 149.7 avax worth of QI.
+        // but in case of 1000 avax it will change user 99 avax worth of QI tokens.
+        //  but in the docs it says regardless of the avax value, the user must provided 150 AVAX worth of QI tokens.
+        uint qiAmount = uint(avaxPrice) * (2000e18 - msg.value) / uint(qiPrice) / 10; // @note 2000 avax required to run validator node on avalanche
 
         require(qiAmount > 0);
 
@@ -378,12 +382,12 @@ contract Ignite is
         (, int256 avaxPrice, , uint avaxPriceUpdatedAt, ) = priceFeeds[AVAX].latestRoundData();
         (, int256 qiPrice, , uint qiPriceUpdatedAt, ) = priceFeeds[address(qi)].latestRoundData();
 
-        require(avaxPrice > 0 && qiPrice > 0);
+        require(avaxPrice > 0 && qiPrice > 0); // @audit q missing check for avaxPrice > qiPrice
         require(block.timestamp - avaxPriceUpdatedAt <= maxPriceAges[AVAX]);
         require(block.timestamp - qiPriceUpdatedAt <= maxPriceAges[address(qi)]);
 
         // 200 AVAX + 1 AVAX fee
-        uint expectedQiAmount = uint(avaxPrice) * 201e18 / uint(qiPrice);
+        uint expectedQiAmount = uint(avaxPrice) * 201e18 / uint(qiPrice); // qi amount
 
         require(qiAmount >= expectedQiAmount * 9 / 10);
 
@@ -602,7 +606,7 @@ contract Ignite is
 
                 // Non-tokenised registrations do not count towards the subsidisation cap
                 // nor can have a non-zero AVAX deposit and should be deleted immediately.
-                if (registration.tokenDeposits.tokenAmount == 0) {  // @audit if msg.value is greater than 0 and tokenAmount is zero that the withdrawal is not toggled
+                if (registration.tokenDeposits.tokenAmount == 0 && registration.tokenDeposits.avaxAmount == 0 ) {  // @audit if msg.value is greater than 0 and tokenAmount is zero that the withdrawal is not toggled
                     _deleteRegistration(nodeId);                  // @audit  registration.tokenDeposits.tokenAmount == 0  this should be registration.tokenDeposits.avaxAmount == 0 
 
                     return;
@@ -673,7 +677,7 @@ contract Ignite is
         } else if (msg.value > registration.tokenDeposits.avaxAmount) {
             uint rewards = msg.value - registration.tokenDeposits.avaxAmount;
 
-            registration.rewardAmount = rewards;
+            registration.rewardAmount = rewards; // @info recieved rewards
             minimumContractBalance += msg.value;
 
             emit ValidatorRewarded(nodeId, rewards);
@@ -970,11 +974,11 @@ contract Ignite is
         uint tokenAmount,
         bool isEligibleForQiRewards
     ) internal whenNotPaused {
-        // uint registrationIndex = registrationIndicesByNodeId[nodeId];
-        // require(
-        //     registrationIndex == 0 && bytes(nodeId).length != 0,
-        //     "Node already registered"
-        // );
+        uint registrationIndex = registrationIndicesByNodeId[nodeId];
+        require(
+            registrationIndex == 0 && bytes(nodeId).length != 0,
+            "Node already registered"
+        );
 
         require(blsProofOfPossession.length == 144);
 
@@ -990,7 +994,7 @@ contract Ignite is
                     token,
                     tokenAmount
                 ),
-                0,
+                0, // reward amount
                 qiSlashPercentage,
                 avaxSlashPercentage,
                 false,
