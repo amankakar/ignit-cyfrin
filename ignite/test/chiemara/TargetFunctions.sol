@@ -48,7 +48,8 @@ abstract contract TargetFunctions is BaseTargetFunctions, Properties {
                 "NodeID-",
                 block.prevrandao,
                 block.number,
-                block.timestamp
+                block.timestamp,
+                userIndex
             )
         );
         vm.prank(user);
@@ -89,7 +90,8 @@ abstract contract TargetFunctions is BaseTargetFunctions, Properties {
                 "NodeID-",
                 block.prevrandao,
                 block.number,
-                block.timestamp
+                block.timestamp,
+                userIndex
             )
         );
 
@@ -139,7 +141,8 @@ abstract contract TargetFunctions is BaseTargetFunctions, Properties {
                 "NodeID-",
                 block.prevrandao,
                 block.number,
-                block.timestamp
+                block.timestamp,
+                userIndex
             )
         );
 
@@ -184,7 +187,8 @@ abstract contract TargetFunctions is BaseTargetFunctions, Properties {
                 "NodeID-",
                 block.prevrandao,
                 block.number,
-                block.timestamp
+                block.timestamp,
+                userIndex
             )
         );
 
@@ -219,7 +223,8 @@ abstract contract TargetFunctions is BaseTargetFunctions, Properties {
                 "NodeID-",
                 block.prevrandao,
                 block.number,
-                block.timestamp
+                block.timestamp,
+                userIndex
             )
         );
 
@@ -387,9 +392,10 @@ abstract contract TargetFunctions is BaseTargetFunctions, Properties {
             ,
             bool withdrawable
         ) = ignite.registrations(registrationIndex);
-        gostTotalSubsidisedAmount -= 2000e18 - tokenDeposits.avaxAmount;
-
+        bool isNoCollateral = tokenDeposits.avaxAmount > 0 || tokenDeposits.tokenAmount > 0;
         uint msgValue = tokenDeposits.avaxAmount;
+        if(isNoCollateral){
+      
         if (!withdrawable) {
             if (!feePaid && msgValue != 0) {
                 vm.prank(admin);
@@ -397,6 +403,8 @@ abstract contract TargetFunctions is BaseTargetFunctions, Properties {
                     nodeId,
                     false // bool failed
                 );
+                        gostTotalSubsidisedAmount -= 2000e18 - tokenDeposits.avaxAmount;
+
                 totalEthStaked += msgValue;
 
                 if (qiSlashPercentage > 0) {
@@ -416,9 +424,24 @@ abstract contract TargetFunctions is BaseTargetFunctions, Properties {
                 } else {
                     gostMinimumContractBalance += msgValue;
                 }
+            }else if(feePaid){
+                 vm.prank(admin);
+                ignite.releaseLockedTokens{value: 0}(
+                    nodeId,
+                    false // bool failed
+                );
+                        gostTotalSubsidisedAmount -= 2000e18;
+
+            if (tokenDeposits.avaxAmount > 0) {
+                gostMinimumContractBalance -= tokenDeposits.avaxAmount;
+                totalEthStaked -= tokenDeposits.avaxAmount;
+            } else {
+                totalQIStaked -= tokenDeposits.tokenAmount;
+            }            
             }
         }
         releaseLockTokenSlashedCalled = true;
+        }
     }
 
     function redeem(uint256 nodeIdIndex, uint256 userIndex) public {
