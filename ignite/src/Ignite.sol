@@ -606,7 +606,7 @@ contract Ignite is
 
                 // Non-tokenised registrations do not count towards the subsidisation cap
                 // nor can have a non-zero AVAX deposit and should be deleted immediately.
-                if (registration.tokenDeposits.tokenAmount == 0 && registration.tokenDeposits.avaxAmount == 0 ) {  // @audit if msg.value is greater than 0 and tokenAmount is zero that the withdrawal is not toggled
+                if (registration.tokenDeposits.tokenAmount == 0 ) {  // @audit if msg.value is greater than 0 and tokenAmount is zero that the withdrawal is not toggled
                     _deleteRegistration(nodeId);                  // @audit  registration.tokenDeposits.tokenAmount == 0  this should be registration.tokenDeposits.avaxAmount == 0 
 
                     return;

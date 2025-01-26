@@ -154,9 +154,9 @@ abstract contract TargetFunctions is BaseTargetFunctions, Properties {
             validationDuration,
             qiAmount
         );
+        _registerWithChecks(false, 0);
         nodeIds.push(nodeIdStr);
         isRegisteredCalled = true;
-        _registerWithChecks(false, 0);
     }
     function register_without_collateral(
         uint256 userIndex,
@@ -279,15 +279,15 @@ abstract contract TargetFunctions is BaseTargetFunctions, Properties {
                 );
             } else {
                 if (
-                    tokenDeposits.avaxAmount > 0 &&
-                    tokenDeposits.tokenAmount > 0
+                    tokenDeposits.tokenAmount == 0 
                 ) {
+                    
+                }else{
                     failRegistrationIndices.push(nodeId);
 
                     gostTotalSubsidisedAmount -=
                         2000e18 -
                         tokenDeposits.avaxAmount;
-                }
 
                 totalEthStaked += tokenDeposits.avaxAmount;
                 gostMinimumContractBalance += tokenDeposits.avaxAmount;
@@ -297,6 +297,7 @@ abstract contract TargetFunctions is BaseTargetFunctions, Properties {
                     nodeId,
                     true // bool failed
                 );
+                }
             }
         }
         releaseLockTokenFailedCalled = true;
@@ -430,12 +431,16 @@ abstract contract TargetFunctions is BaseTargetFunctions, Properties {
                     nodeId,
                     false // bool failed
                 );
-                        gostTotalSubsidisedAmount -= 2000e18;
+
+                gostTotalSubsidisedAmount -= 2000e18;
 
             if (tokenDeposits.avaxAmount > 0) {
+                avaxFee += tokenDeposits.avaxAmount;
                 gostMinimumContractBalance -= tokenDeposits.avaxAmount;
                 totalEthStaked -= tokenDeposits.avaxAmount;
             } else {
+                tokenFee += tokenDeposits.tokenAmount;
+
                 totalQIStaked -= tokenDeposits.tokenAmount;
             }            
             }
@@ -467,12 +472,22 @@ abstract contract TargetFunctions is BaseTargetFunctions, Properties {
         ) = ignite.registrations(registrationIndex);
 
         if (withdrawable) {
+
+
+
+        if(feePaid) {
             if (tokenDeposits.avaxAmount > 0) {
                 gostMinimumContractBalance -= tokenDeposits.avaxAmount;
                 totalEthStaked -= tokenDeposits.avaxAmount;
             } else {
                 totalQIStaked -= tokenDeposits.tokenAmount;
             }
+
+               vm.prank(user);
+            ignite.redeemAfterExpiry(nodeId);
+            return;
+        }
+
             uint avaxRedemptionAmount;
             uint qiRedemptionAmount;
             if (stashed) {
@@ -480,8 +495,11 @@ abstract contract TargetFunctions is BaseTargetFunctions, Properties {
                     tokenDeposits.avaxAmount -
                     (tokenDeposits.avaxAmount * avaxSlashPercentage) /
                     10_000;
+                qiRedemptionAmount = tokenDeposits.tokenAmount - tokenDeposits.tokenAmount * qiSlashPercentage / 10_000;
 
                 gostMinimumContractBalance -= avaxRedemptionAmount;
+
+
             } else {
                 avaxRedemptionAmount = tokenDeposits.avaxAmount + rewardAmount;
                 qiRedemptionAmount = tokenDeposits.tokenAmount;
@@ -495,6 +513,17 @@ abstract contract TargetFunctions is BaseTargetFunctions, Properties {
 
                 gostMinimumContractBalance -= avaxRedemptionAmount;
             }
+
+            if(avaxRedemptionAmount > 0){
+                totalEthStaked -= avaxRedemptionAmount;
+
+            }
+
+            if(qiRedemptionAmount > 0){
+                totalQIStaked -= qiRedemptionAmount;
+            }
+
+
 
             vm.prank(user);
             ignite.redeemAfterExpiry(nodeId);
