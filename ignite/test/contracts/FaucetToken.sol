@@ -12,7 +12,7 @@ contract FaucetToken is ERC20 {
         string memory _symbol,
         string memory _name,
         uint8 __decimals
-    ) ERC20(string(abi.encodePacked(_symbol, _name)), _symbol) {
+    ) ERC20(_name, _symbol) {
         _decimals = __decimals;
     }
 

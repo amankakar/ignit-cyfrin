@@ -215,9 +215,9 @@ contract StakingContract is
         avaxStakeAmount = _initialStakingAmount;
         hostingFeeAvax = _initialHostingFee;
         joeRouter = IJoeRouter02(_joeRouter);
-        slippage = 1; // 1% slippage
+        slippage = 10; // 1% slippage
         minSlippage = 0; // Min slippage
-        maxSlippage = 5; // Max slippage
+        maxSlippage = 50; // Max slippage
         refundPeriod = 5 days;
 
         _initializePriceFeeds(
@@ -420,7 +420,7 @@ contract StakingContract is
             "Invalid staking status"
         );
 
-        uint256 qiAmount = record.amountStaked; // 200
+        uint256 qiAmount = record.amountStaked;
 
         // Approve the Ignite contract to pull QI tokens
         qiToken.forceApprove(address(igniteContract), qiAmount);
@@ -440,13 +440,13 @@ contract StakingContract is
         }
 
         // Call the external function
-        igniteContract.registerWithPrevalidatedQiStake(
-            user,
-            nodeId,
-            blsProofOfPossession,
-            record.duration,
-            qiAmount
-        );
+        // igniteContract.registerWithPrevalidatedQiStake(
+        //     user,
+        //     nodeId,
+        //     blsProofOfPossession,
+        //     record.duration,
+        //     qiAmount
+        // );
         // @note : the current  igniteContract impl does not have this function os i have just transfer the given amount to keep the assets transfer constent
             IERC20Upgradeable(qiToken).safeTransfer(
                 address(igniteContract),
@@ -475,7 +475,7 @@ contract StakingContract is
         );
 
         // Calculate the total required amount
-        uint256 totalRequired = avaxStakeAmount + hostingFee;
+        uint256 totalRequired = avaxStakeAmount + hostingFee;// 201.4 AVAX
         uint256 excessAmount = msg.value - totalRequired;
         // Perform the swap and check slippage
         uint256 stakingAmountInQi = swapForQI(avaxStakeAmount, AVAX);
@@ -493,8 +493,8 @@ contract StakingContract is
         uint256 index = userRecords.stakeCount;
         // Record the staking details
         userRecords.records[index] = StakeRecord({
-            amountStaked: stakingAmountInQi,
-            hostingFeePaid: hostingFee,
+            amountStaked: stakingAmountInQi, // 200 AVAX converted in QI?
+            hostingFeePaid: hostingFee, // 1.4 AVAX
             timestamp: block.timestamp,
             duration: duration,
             tokenType: AVAX,
@@ -904,7 +904,7 @@ contract StakingContract is
 
         // Get the best price quote
         uint256 slippageFactor = 100 - slippage; // Convert slippage percentage to factor
-        uint256 amountOutMin = (expectedQiAmount * slippageFactor) / 100; // Apply slippage @audit the actula amount the contract receive after swap so it will create the arbitrage apportunity
+        uint256 amountOutMin = (expectedQiAmount * slippageFactor) / 100; // Apply slippage
         emit Logs(amountOutMin);
         // emit Logs(expectedQiAmount);
 

@@ -13,19 +13,6 @@
 	  "targetContracts": [
 		"CryticTester"
 	  ],
-	  "excludeContracts": [
-		"OpenZeppelin/*",
-		"@openzeppelin/*",
-		"node_modules/*",
-		"lib/*",
-		"@chimera/*",
-		"@crytic/*",
-		"@ensdomains/*",
-		"@ethereum-waffle/",
-		"lib/forge-std/*",
-		"hardhat/*",
-		"solmate/*"
-	  ],
 	  "targetContractsBalances": [
 		"0x27b46536c66c8e3000000"
 	  ],

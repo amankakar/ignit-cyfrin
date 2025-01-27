@@ -54,8 +54,8 @@ abstract contract Setup is BaseSetup {
     address public  zeeveWallet = 0x6Ce78374dFf46B660E274d0b10E29890Eeb0167b;
     address  public igniteSmartContract = 0xB71a820d80189073F69498010cb67bDDAe050633;//0xF1652dc03Ee76F7b22AFc7FF1cD539Cf20d545D5;
     address  public joeRouterAddress = 0x60aE616a2155Ee3d9A68541Ba4544862310933d4;//0xd7f655E3376cE2D7A2b08fF01Eb3B1023191A901;
-    uint256  public initialStakingAmount = 1 ether; // 200 AVAX
-    uint256  public initialHostingFee = 0.001 ether; // 1.4 AVAX
+    uint256  public initialStakingAmount = 200 ether; // 200 AVAX
+    uint256  public initialHostingFee = 1.4 ether; // 1.4 AVAX
     address  public AVAX = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE;
 
     uint256[] public durations;

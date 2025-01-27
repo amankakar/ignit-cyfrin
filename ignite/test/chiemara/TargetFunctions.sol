@@ -279,14 +279,17 @@ abstract contract TargetFunctions is BaseTargetFunctions, Properties {
                 );
             } else {
                 if (
-                    tokenDeposits.tokenAmount == 0 
+                    tokenDeposits.tokenAmount > 0 && tokenDeposits.avaxAmount > 0
                 ) {
+<<<<<<< Updated upstream
                 vm.prank(admin);
                 ignite.releaseLockedTokens{value: tokenDeposits.avaxAmount}(
                     nodeId,
                     true // bool failed
                 );
                 }else{
+=======
+>>>>>>> Stashed changes
                     failRegistrationIndices.push(nodeId);
 
                     gostTotalSubsidisedAmount -=

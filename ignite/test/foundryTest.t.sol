@@ -6,7 +6,7 @@ import {PriceFeed} from "./contracts/PriceFeed.sol";
 import {StakedAvax} from "./contracts/StakedAvax.sol";
 import {FaucetToken} from "./contracts/FaucetToken.sol";
 import {Test} from "forge-std/Test.sol";
-import  "forge-std/console.sol";
+import "forge-std/console.sol";
 import {IgniteStorage} from "../src/IgniteStorage.sol";
 
 contract MyTest is Test {
@@ -107,7 +107,7 @@ contract MyTest is Test {
             25 ether, // min eth
             1500 ether // max eth
         );
-            vm.deal(admin, 1000000000000000000000000000000000 ether); // mint eth
+        vm.deal(admin, 1000000000000000000000000000000000 ether); // mint eth
         for (uint i = 0; i < users.length; i++) {
             vm.prank(users[i]);
             qi.mint(100000000000000000000000000000000 ether); // mint qi
@@ -340,12 +340,16 @@ contract MyTest is Test {
                     true // bool failed
                 );
             } else {
-                if (tokenDeposits.avaxAmount > 0 && tokenDeposits.tokenAmount > 0){
-
+                if (
+                    tokenDeposits.avaxAmount > 0 &&
+                    tokenDeposits.tokenAmount > 0
+                ) {
                     failRegistrationIndices.push(nodeId);
-                    console.log("failRegistrationIndices.length",failRegistrationIndices.length);
-                    console.log("index pushed " , registrationIndex);
-
+                    console.log(
+                        "failRegistrationIndices.length",
+                        failRegistrationIndices.length
+                    );
+                    console.log("index pushed ", registrationIndex);
                 }
                 totalEthStaked += tokenDeposits.avaxAmount;
                 gostMinimumContractBalance += tokenDeposits.avaxAmount;
@@ -476,57 +480,90 @@ contract MyTest is Test {
         releaseLockTokenSlashedCalled = true;
     }
 
-
-
-
-
-
-    function test_call_sequence_eth() public{
-    //   *wait* Time delay: 2339943 seconds Block delay: 214168
-    vm.warp(block.timestamp+2339943);
-    register_with_avax_fee(23800931640981862246272855095199168797465484570217772509906087200776201984824,49999999999999999999,40452286043366250835527447481768949284813338991617241741765092741729749528631);
-    vm.warp(block.timestamp+1003569);
-    // *wait* Time delay: 1003569 seconds Block delay: 5889
-    register_without_collateral(115792089237316195423570985008687907853269984665640564039457584007913129639932,83586453273967205365305483547111057541932601632404957870743428521042903560899,15000000000000000000);
-    register_with_avax_fee(20420479259341404712880216297933415342237411048843792535910610419262418259320,364,63037373784252482332977258390710441587434745557131538400600434875942230339); 
-    vm.warp(block.timestamp+637072);
-    // *wait* Time delay: 637072 seconds Block delay: 14369
-    release_locked_tokens_slash(18381818903501417271993037180782586624320017583168633123491174667116302679771);
-assertEq(address(ignite).balance, totalEthStaked);
-assertEq(address(SLASHED_TOKEN_RECIPIENT).balance ,avaxSlash);
- assertEq(qi.balanceOf(SLASHED_TOKEN_RECIPIENT) ,tokenSlash);
-
+    function test_call_sequence_eth() public {
+        //   *wait* Time delay: 2339943 seconds Block delay: 214168
+        vm.warp(block.timestamp + 2339943);
+        register_with_avax_fee(
+            23800931640981862246272855095199168797465484570217772509906087200776201984824,
+            49999999999999999999,
+            40452286043366250835527447481768949284813338991617241741765092741729749528631
+        );
+        vm.warp(block.timestamp + 1003569);
+        // *wait* Time delay: 1003569 seconds Block delay: 5889
+        register_without_collateral(
+            115792089237316195423570985008687907853269984665640564039457584007913129639932,
+            83586453273967205365305483547111057541932601632404957870743428521042903560899,
+            15000000000000000000
+        );
+        register_with_avax_fee(
+            20420479259341404712880216297933415342237411048843792535910610419262418259320,
+            364,
+            63037373784252482332977258390710441587434745557131538400600434875942230339
+        );
+        vm.warp(block.timestamp + 637072);
+        // *wait* Time delay: 637072 seconds Block delay: 14369
+        release_locked_tokens_slash(
+            18381818903501417271993037180782586624320017583168633123491174667116302679771
+        );
+        assertEq(address(ignite).balance, totalEthStaked);
+        assertEq(address(SLASHED_TOKEN_RECIPIENT).balance, avaxSlash);
+        assertEq(qi.balanceOf(SLASHED_TOKEN_RECIPIENT), tokenSlash);
     }
-      function echidna_check_fail_registration_withdrawal() public view returns(bool){
-        if(releaseLockTokenFailedCalled){
-            for(uint i = 0; i < failRegistrationIndices.length; i++){
-                uint registrationIndex = ignite.registrationIndicesByNodeId(failRegistrationIndices[i]);
+    function echidna_check_fail_registration_withdrawal()
+        public
+        view
+        returns (bool)
+    {
+        if (releaseLockTokenFailedCalled) {
+            for (uint i = 0; i < failRegistrationIndices.length; i++) {
+                uint registrationIndex = ignite.registrationIndicesByNodeId(
+                    failRegistrationIndices[i]
+                );
 
                 // console.log("-------failRegistrationIndices[i]",failRegistrationIndices[i]);
-                (,,,,,,,,,bool withdrawable) = ignite.
-                registrations(registrationIndex);
-                    if(!withdrawable){
-                        return false;
-                    }   
+                (, , , , , , , , , bool withdrawable) = ignite.registrations(
+                    registrationIndex
+                );
+                if (!withdrawable) {
+                    return false;
+                }
             }
         }
         return true;
     }
-    function test_call_sequence_slash() public{
-        
-    register_without_collateral(90793348850281496678072320409872830544682414578408269142394356939249042, 1437443316294098354833584440837003196499155786356999691924578140198683386056, 19752092795023871847753688518486364829031218708396609936401178172412537906) ;
-register_with_prevalidated_qiStake(5105119814835423036487567069330023021291179814951192448432288748189120288252, 0, 18834950799826133674679561860959377891541967708779631289483411356347351894687);
-register_with_stake(10966200542012969634211031576633892897321859707106703157960541085650787, 4385353717600810109332974968747091428581898330881677267013117767073, 1920377899237386249565612527936372468840264932211331914352590355686, 133866624528333825974145232731214727132651979223105125572269053) ;
-release_locked_tokens_failed(4341276485053523731922015069182412891618619688854406941254744768412543416) ;
-release_locked_tokens_failed(12285431668945874510626838611571498633450458003316214180068652652434354169947) ;
- console.log("failRegistrationIndices.length-1");
- console.log(failRegistrationIndices.length-1);
-   console.log("ignite.getTotalRegistrations()");
-   console.log(ignite.getTotalRegistrations());
-assertTrue(echidna_check_fail_registration_withdrawal());
+    function test_call_sequence_slash() public {
+        register_without_collateral(
+            90793348850281496678072320409872830544682414578408269142394356939249042,
+            1437443316294098354833584440837003196499155786356999691924578140198683386056,
+            19752092795023871847753688518486364829031218708396609936401178172412537906
+        );
+        register_with_prevalidated_qiStake(
+            5105119814835423036487567069330023021291179814951192448432288748189120288252,
+            0,
+            18834950799826133674679561860959377891541967708779631289483411356347351894687
+        );
+        register_with_stake(
+            10966200542012969634211031576633892897321859707106703157960541085650787,
+            4385353717600810109332974968747091428581898330881677267013117767073,
+            1920377899237386249565612527936372468840264932211331914352590355686,
+            133866624528333825974145232731214727132651979223105125572269053
+        );
+        release_locked_tokens_failed(
+            4341276485053523731922015069182412891618619688854406941254744768412543416
+        );
+        release_locked_tokens_failed(
+            12285431668945874510626838611571498633450458003316214180068652652434354169947
+        );
+        console.log("failRegistrationIndices.length-1");
+        console.log(failRegistrationIndices.length - 1);
+        console.log("ignite.getTotalRegistrations()");
+        console.log(ignite.getTotalRegistrations());
+        assertTrue(echidna_check_fail_registration_withdrawal());
     }
 
-    function _getRegistrationFee(uint validationDuration) internal view returns (uint) {
+    function _getRegistrationFee(
+        uint validationDuration
+    ) internal view returns (uint) {
         if (validationDuration == VALIDATION_DURATION_TWO_WEEKS) {
             return 8e18;
         }
@@ -542,19 +579,23 @@ assertTrue(echidna_check_fail_registration_withdrawal());
         if (validationDuration == VALIDATION_DURATION_TWELVE_WEEKS) {
             return 40e18;
         }
-
     }
 
-function test_math() public{
-        uint tokenAmount = uint(3457371445) * 8e18 / uint(100001495) / 10 ** (18 - 6);
+// function test_math() public{
+//         uint tokenAmount = uint(3457371445) * 8e18 / uint(100001495) / 10 ** (18 - 6);
 
-    console.log("USDC amount",tokenAmount);
+    function test_APR() public {
+        uint256 stakeAmount = 528869690424765900000000;
+        uint256 validationDuration = 86400 * 7 * 2;
+        uint256 targetApr = 2500;
+    uint256 stakeAmount2 = stakeAmount * targetApr * validationDuration / 10_000 / 60 / 60 / 24 / 365;
 
-    // tokenAmount = uint(3457371445) * 8e18 / uint(100001495) / 10 ** (18 - 8);
+        uint256 stakeAmount1 = stakeAmount * targetApr * validationDuration / 10_000 / 365 / 60 / 60 / 24 ;
 
-    // console.log("USDC amount",tokenAmount);
-}
+     console.log("stakeAmount2" , stakeAmount2);
+     console.log("stakeAmount1" , stakeAmount1);
 
+    }
 }
 
 
