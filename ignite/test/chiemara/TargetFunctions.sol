@@ -281,7 +281,11 @@ abstract contract TargetFunctions is BaseTargetFunctions, Properties {
                 if (
                     tokenDeposits.tokenAmount == 0 
                 ) {
-                    
+                vm.prank(admin);
+                ignite.releaseLockedTokens{value: tokenDeposits.avaxAmount}(
+                    nodeId,
+                    true // bool failed
+                );
                 }else{
                     failRegistrationIndices.push(nodeId);
 

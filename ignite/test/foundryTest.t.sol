@@ -545,7 +545,10 @@ assertTrue(echidna_check_fail_registration_withdrawal());
 
     }
 
-
+function test_math() public{
+    uint res = uint(3457371445) * (2000e18 - 100e18) / uint(1303053) / 10;
+    console.log("res",res);
+}
 
 }
 

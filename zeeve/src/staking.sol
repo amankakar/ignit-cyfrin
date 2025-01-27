@@ -336,7 +336,7 @@ contract StakingContract is
     function setMinSlippage(
         uint256 _minSlippage
     ) external onlyRole(BENQI_ADMIN_ROLE) {
-        require(slippage >= _minSlippage, "Error: minimum slippage must be lower than the current slippage"); // @audit : remove the = 
+        require(slippage >= _minSlippage, "Error: minimum slippage must be lower than the current slippage");  
         uint256 oldMinSlippage = minSlippage;
         minSlippage = _minSlippage;
         emit MinSlippageUpdated(oldMinSlippage, _minSlippage);
@@ -420,7 +420,7 @@ contract StakingContract is
             "Invalid staking status"
         );
 
-        uint256 qiAmount = record.amountStaked;
+        uint256 qiAmount = record.amountStaked; // 200
 
         // Approve the Ignite contract to pull QI tokens
         qiToken.forceApprove(address(igniteContract), qiAmount);
@@ -433,7 +433,6 @@ contract StakingContract is
                 2300
             );
         } else {
-            // @audit : the transfer is done here
             IERC20Upgradeable(record.tokenType).safeTransfer(
                 zeeveWallet,
                 record.hostingFeePaid
@@ -441,13 +440,13 @@ contract StakingContract is
         }
 
         // Call the external function
-        // igniteContract.registerWithPrevalidatedQiStake(
-        //     user,
-        //     nodeId,
-        //     blsProofOfPossession,
-        //     record.duration,
-        //     qiAmount
-        // );
+        igniteContract.registerWithPrevalidatedQiStake(
+            user,
+            nodeId,
+            blsProofOfPossession,
+            record.duration,
+            qiAmount
+        );
         // @note : the current  igniteContract impl does not have this function os i have just transfer the given amount to keep the assets transfer constent
             IERC20Upgradeable(qiToken).safeTransfer(
                 address(igniteContract),
@@ -469,10 +468,7 @@ contract StakingContract is
     function stakeWithAVAX(
         uint256 duration
     ) external payable nonReentrant whenNotPaused  onlyValidDuration(duration){
-        emit Log();
         uint256 hostingFee = calculateHostingFee(duration);
-        emit Logs(avaxStakeAmount);
-        emit Logs(hostingFee);
         require(
             msg.value >= avaxStakeAmount + hostingFee,
             "Insufficient AVAX sent"
@@ -481,7 +477,6 @@ contract StakingContract is
         // Calculate the total required amount
         uint256 totalRequired = avaxStakeAmount + hostingFee;
         uint256 excessAmount = msg.value - totalRequired;
-        emit Logs(IERC20Upgradeable(address(qiToken)).balanceOf(address(this)));
         // Perform the swap and check slippage
         uint256 stakingAmountInQi = swapForQI(avaxStakeAmount, AVAX);
         // Refund the excess amount to the user
@@ -743,7 +738,7 @@ contract StakingContract is
         address tokenType = record.tokenType;
 
         // Refund the staked amount
-        // @audit : why stackedAmount being payed in QIToken?
+        // @audit : why stackedAmount being re payed in QIToken? 
         qiToken.safeTransfer(user, stakedAmount);
         // Refund the hosting fee
         if (tokenType == AVAX) {
@@ -859,7 +854,7 @@ contract StakingContract is
 
     function calculateHostingFee(
         uint256 duration
-    ) public view returns (uint256) { // @audit : chang to public for testing
+    ) public view returns (uint256) { 
         require(isValidDuration(duration), "Invalid duration");
 
         uint256 numFortnights = duration / FORTNIGHT_IN_SECONDS; // 14 days
@@ -909,7 +904,7 @@ contract StakingContract is
 
         // Get the best price quote
         uint256 slippageFactor = 100 - slippage; // Convert slippage percentage to factor
-        uint256 amountOutMin = (expectedQiAmount * slippageFactor) / 100; // Apply slippage
+        uint256 amountOutMin = (expectedQiAmount * slippageFactor) / 100; // Apply slippage @audit the actula amount the contract receive after swap so it will create the arbitrage apportunity
         emit Logs(amountOutMin);
         // emit Logs(expectedQiAmount);
 
@@ -917,7 +912,7 @@ contract StakingContract is
     // asad place : 10 token2 slip minOut 8 token1 
     // aman : pool unbalane aisy k minout asad swap execute 8 token1
         uint256[] memory amountOutReal;
-        uint256 deadline = block.timestamp; // @note : not best choice 
+        uint256 deadline = block.timestamp; // @audit : using block.timestamp, not best choice 
 uint256[] memory amountsOut = joeRouter.getAmountsOut(amountIn ,path);
 emit Logs(amountsOut[amountsOut.length-1]);
         if (token == AVAX) {
