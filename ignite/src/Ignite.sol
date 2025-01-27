@@ -144,7 +144,6 @@ contract Ignite is
         maximumAvaxDeposit = _maximumAvaxDeposit;
 
         qiSlashPercentage = 5_000;
-        //@audit missing avaxSlashPercentage initialization 
         maximumSubsidisationAmount = 50_000e18;
 
         qiPriceMultiplier = 10_000;

@@ -546,8 +546,13 @@ assertTrue(echidna_check_fail_registration_withdrawal());
     }
 
 function test_math() public{
-    uint res = uint(3457371445) * (2000e18 - 100e18) / uint(1303053) / 10;
-    console.log("res",res);
+        uint tokenAmount = uint(3457371445) * 8e18 / uint(100001495) / 10 ** (18 - 6);
+
+    console.log("USDC amount",tokenAmount);
+
+    // tokenAmount = uint(3457371445) * 8e18 / uint(100001495) / 10 ** (18 - 8);
+
+    // console.log("USDC amount",tokenAmount);
 }
 
 }
